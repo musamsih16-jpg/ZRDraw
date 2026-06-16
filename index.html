@@ -131,34 +131,40 @@
     <div id="toast-container" class="fixed top-16 left-1/2 transform -translate-x-1/2 z-50 flex flex-col gap-2 pointer-events-none"></div>
 
 <script>
+    // Если произойдет любая ошибка, она вылезет на экран
+    window.onerror = function(msg, url, line) {
+        alert("ОШИБКА: " + msg + "\nСтрока: " + line);
+        return false;
+    };
+
     const translations = {
         ru: {
             title: "Студия Анимации Pro", fps: "FPS:", play: "Пуск", stop: "Стоп", export: "Экспорт",
             brush: "Кисть:", eraser: "Ластик", clear: "Очистить", onion: "Калька",
             frameOf: "Кадр {x} из {y}", hint: "Удержание кадра = Удалить | Удержание [+] = Дублировать",
-            render: "Сборка видео...", saving: "Сохранение файла...", done: "✅ Видео сохранено!",
-            err: "❌ Ошибка при экспорте", delErr: "Нельзя удалить последний кадр!", deleted: "🗑️ Кадр удален", copied: "📋 Кадр скопирован"
+            render: "Сборка видео...", saving: "Сохранение файла...", done: "✅ Готово!",
+            err: "❌ Ошибка экспорта", delErr: "Нельзя удалить последний кадр!", deleted: "🗑️ Кадр удален", copied: "📋 Кадр скопирован"
         },
         en: {
             title: "Animation Studio Pro", fps: "FPS:", play: "Play", stop: "Stop", export: "Export",
             brush: "Brush:", eraser: "Eraser", clear: "Clear", onion: "Onion Skin",
             frameOf: "Frame {x} of {y}", hint: "Hold frame = Delete | Hold [+] = Duplicate",
-            render: "Rendering video...", saving: "Saving file...", done: "✅ Video saved!",
-            err: "❌ Export error", delErr: "Cannot delete the last frame!", deleted: "🗑️ Frame deleted", copied: "📋 Frame duplicated"
+            render: "Rendering...", saving: "Saving...", done: "✅ Saved!",
+            err: "❌ Error", delErr: "Cannot delete!", deleted: "🗑️ Deleted", copied: "📋 Duplicated"
         },
         az: {
             title: "Animasiya Studiyası Pro", fps: "FPS:", play: "Başlat", stop: "Dayandır", export: "Eksport",
             brush: "Fırça:", eraser: "Pozan", clear: "Təmizlə", onion: "Kalka",
-            frameOf: "Kadr {x} / {y}", hint: "Kadra basıb saxlayın = Sil | [+] basıb saxlayın = Kopyala",
-            render: "Video yığılır...", saving: "Fayl saxlanılır...", done: "✅ Video yaddaşa verildi!",
-            err: "❌ Eksport xətası", delErr: "Sonuncu kadrı silmək olmaz!", deleted: "🗑️ Kadr silindi", copied: "📋 Kadr kopyalandı"
+            frameOf: "Kadr {x} / {y}", hint: "Saxlayın = Sil | [+] Saxlayın = Kopyala",
+            render: "Yığılır...", saving: "Saxlanılır...", done: "✅ Hazırdır!",
+            err: "❌ Xəta", delErr: "Sonuncunu silmək olmaz!", deleted: "🗑️ Silindi", copied: "📋 Kopyalandı"
         }
     };
 
     let currentLang = 'ru';
 
     const canvas = document.getElementById('main-canvas');
-    const ctx = canvas.getContext('2d');
+    const ctx = canvas.getContext('2d', { willReadFrequently: true });
     
     const CANVAS_WIDTH = 800;
     const CANVAS_HEIGHT = 600;
@@ -195,7 +201,6 @@
         ctx.lineJoin = 'round';
         ctx.lineWidth = currentSize;
     }
-    setupContext();
 
     function getEmptyCanvasDataURL() {
         const tempCanvas = document.createElement('canvas');
@@ -207,6 +212,7 @@
         return tempCanvas.toDataURL('image/png');
     }
 
+    // Инициализация первого кадра
     frames.push(getEmptyCanvasDataURL());
     renderFramesList();
     loadFrameToCanvas(0);
@@ -234,7 +240,11 @@
         document.getElementById('frame-counter').innerText = t.frameOf.replace('{x}', currentFrameIndex + 1).replace('{y}', frames.length);
         
         document.querySelectorAll('.frame-thumb').forEach((el, idx) => {
-            el.classList.toggle('frame-active', idx === currentFrameIndex);
+            if(idx === currentFrameIndex) {
+                el.classList.add('frame-active');
+            } else {
+                el.classList.remove('frame-active');
+            }
         });
 
         const onionSkinToggle = document.getElementById('onion-skin-toggle');
@@ -276,38 +286,51 @@
     document.getElementById('btn-lang-en').addEventListener('click', () => applyLanguage('en'));
     document.getElementById('btn-lang-az').addEventListener('click', () => applyLanguage('az'));
 
+    document.getElementById('onion-skin-toggle').addEventListener('change', updateUI);
+
+    // Безопасное удержание кадра (без Pointer Events)
     function setupFrameLongPress(element, index) {
         let pressTimer;
         let startX, startY;
         let isMoving = false;
 
-        element.addEventListener('pointerdown', (e) => {
+        const startHold = (e) => {
             isMoving = false;
-            startX = e.clientX;
-            startY = e.clientY;
+            startX = e.touches ? e.touches[0].clientX : e.clientX;
+            startY = e.touches ? e.touches[0].clientY : e.clientY;
+            
             pressTimer = setTimeout(() => {
                 if (!isMoving) {
                     element.classList.add('deleting');
                     setTimeout(() => deleteFrame(index), 300);
                 }
             }, 600);
-        });
+        };
 
-        element.addEventListener('pointermove', (e) => {
-            if (Math.abs(e.clientX - startX) > 10 || Math.abs(e.clientY - startY) > 10) {
+        const moveHold = (e) => {
+            if (!startX) return;
+            let currentX = e.touches ? e.touches[0].clientX : e.clientX;
+            let currentY = e.touches ? e.touches[0].clientY : e.clientY;
+            if (Math.abs(currentX - startX) > 10 || Math.abs(currentY - startY) > 10) {
                 isMoving = true;
-                clearTimeout(pressTimer);
-                element.classList.remove('deleting');
+                cancelHold();
             }
-        });
+        };
 
         const cancelHold = () => {
             clearTimeout(pressTimer);
             element.classList.remove('deleting');
         };
 
-        element.addEventListener('pointerup', cancelHold);
-        element.addEventListener('pointercancel', cancelHold);
+        element.addEventListener('touchstart', startHold, {passive: true});
+        element.addEventListener('touchmove', moveHold, {passive: true});
+        element.addEventListener('touchend', cancelHold);
+        element.addEventListener('touchcancel', cancelHold);
+        
+        element.addEventListener('mousedown', startHold);
+        element.addEventListener('mousemove', moveHold);
+        element.addEventListener('mouseup', cancelHold);
+        element.addEventListener('mouseleave', cancelHold);
     }
 
     function renderFramesList() {
@@ -384,35 +407,8 @@
         }, 50);
     }
 
+    // Логика добавления кадра (безопасные клики)
     let addPressTimer;
     let holdProgressInterval;
     let isLongPressAdd = false;
-    const holdProgressBar = document.getElementById('hold-progress');
-
-    btnAddFrame.addEventListener('pointerdown', (e) => {
-        isLongPressAdd = false;
-        holdProgressBar.style.width = '0%';
-        let startTime = Date.now();
-        holdProgressInterval = setInterval(() => {
-            let percent = Math.min(((Date.now() - startTime) / 500) * 100, 100);
-            holdProgressBar.style.width = `${percent}%`;
-        }, 20);
-
-        addPressTimer = setTimeout(() => {
-            isLongPressAdd = true;
-            clearInterval(holdProgressInterval);
-            holdProgressBar.style.width = '0%';
-            duplicateFrame();
-            showToast(translations[currentLang].copied);
-        }, 500);
-    });
-
-    const cancelAddPress = () => {
-        clearTimeout(addPressTimer);
-        clearInterval(holdProgressInterval);
-        holdProgressBar.style.width = '0%';
-    };
-
-    btnAddFrame.addEventListener('pointerup', (e) => {
-        cancelAddPress();
-        if 
+    const holdProgressBar = document.getElementById('ho
