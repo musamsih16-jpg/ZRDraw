@@ -98,13 +98,6 @@
             <div class="w-8 h-4 bg-slate-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:bg-violet-500 relative"></div>
             <span id="txt-onion" class="text-xs text-slate-300 font-semibold hidden sm:inline">Калька</span>
         </label>
-
-        <div class="h-6 w-px bg-slate-800 shrink-0"></div>
-
-        <button id="btn-import-audio" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-blue-900/40 text-blue-400 hover:bg-blue-800/50 transition shrink-0 flex items-center gap-1">
-            🎵 <span id="txt-audio">Аудио</span>
-        </button>
-        <input type="file" id="audio-file" accept="audio/*" class="hidden">
     </div>
 
     <main class="flex-1 w-full flex items-center justify-center p-2 sm:p-4 relative bg-slate-950">
@@ -114,7 +107,7 @@
             
             <div id="status-overlay" class="absolute inset-0 bg-slate-950/80 hidden flex-col items-center justify-center pointer-events-auto z-50 backdrop-blur-sm">
                 <div class="w-10 h-10 border-4 border-violet-500 border-t-transparent rounded-full animate-spin mb-3"></div>
-                <span id="status-text" class="text-white font-bold tracking-wide text-center px-4">Сборка видео...</span>
+                <span id="status-text" class="text-white font-bold tracking-wide">Рендеринг...</span>
             </div>
         </div>
     </main>
@@ -129,7 +122,7 @@
             <div class="flex gap-2 items-center h-16 w-max absolute top-0 left-0 px-2" id="frames-container">
                 <button id="btn-add-frame" class="shrink-0 w-14 h-14 rounded-xl border-2 border-dashed border-slate-600 hover:border-violet-400 hover:bg-violet-500/10 text-slate-400 flex items-center justify-center transition flex-col relative select-none">
                     <svg class="w-6 h-6 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
-                    <div id="hold-progress" class="absolute bottom-0 left-0 h-1 bg-violet-500 rounded-full w-0 transition-all duration-75 pointer-events-none"></div>
+                    <div id="hold-progress" class="absolute bottom-0 left-0 h-1 bg-violet-500 rounded-full w-0 transition-all duration-75"></div>
                 </button>
             </div>
         </div>
@@ -138,34 +131,32 @@
     <div id="toast-container" class="fixed top-16 left-1/2 transform -translate-x-1/2 z-50 flex flex-col gap-2 pointer-events-none"></div>
 
 <script>
-    // === ПЕРЕВОДЫ ===
     const translations = {
         ru: {
             title: "Студия Анимации Pro", fps: "FPS:", play: "Пуск", stop: "Стоп", export: "Экспорт",
-            brush: "Кисть:", eraser: "Ластик", clear: "Очистить", onion: "Калька", audio: "Аудио",
+            brush: "Кисть:", eraser: "Ластик", clear: "Очистить", onion: "Калька",
             frameOf: "Кадр {x} из {y}", hint: "Удержание кадра = Удалить | Удержание [+] = Дублировать",
-            render: "Сборка видео... Подождите", saving: "Сохранение файла...", done: "✅ Видео сохранено в Загрузки!",
-            err: "❌ Ошибка при экспорте", delErr: "Нельзя удалить последний кадр!", deleted: "🗑️ Кадр удален", copied: "📋 Кадр скопирован", audioLoaded: "🎵 Звук загружен!"
+            render: "Сборка видео...", saving: "Сохранение файла...", done: "✅ Видео сохранено!",
+            err: "❌ Ошибка при экспорте", delErr: "Нельзя удалить последний кадр!", deleted: "🗑️ Кадр удален", copied: "📋 Кадр скопирован"
         },
         en: {
             title: "Animation Studio Pro", fps: "FPS:", play: "Play", stop: "Stop", export: "Export",
-            brush: "Brush:", eraser: "Eraser", clear: "Clear", onion: "Onion Skin", audio: "Audio",
+            brush: "Brush:", eraser: "Eraser", clear: "Clear", onion: "Onion Skin",
             frameOf: "Frame {x} of {y}", hint: "Hold frame = Delete | Hold [+] = Duplicate",
-            render: "Rendering video... Please wait", saving: "Saving file...", done: "✅ Video saved to Downloads!",
-            err: "❌ Export error", delErr: "Cannot delete the last frame!", deleted: "🗑️ Frame deleted", copied: "📋 Frame duplicated", audioLoaded: "🎵 Audio loaded!"
+            render: "Rendering video...", saving: "Saving file...", done: "✅ Video saved!",
+            err: "❌ Export error", delErr: "Cannot delete the last frame!", deleted: "🗑️ Frame deleted", copied: "📋 Frame duplicated"
         },
         az: {
             title: "Animasiya Studiyası Pro", fps: "FPS:", play: "Başlat", stop: "Dayandır", export: "Eksport",
-            brush: "Fırça:", eraser: "Pozan", clear: "Təmizlə", onion: "Kalka", audio: "Audio",
+            brush: "Fırça:", eraser: "Pozan", clear: "Təmizlə", onion: "Kalka",
             frameOf: "Kadr {x} / {y}", hint: "Kadra basıb saxlayın = Sil | [+] basıb saxlayın = Kopyala",
-            render: "Video yığılır... Gözləyin", saving: "Fayl saxlanılır...", done: "✅ Video Yükləmələrə yazıldı!",
-            err: "❌ Eksport xətası", delErr: "Sonuncu kadrı silmək olmaz!", deleted: "🗑️ Kadr silindi", copied: "📋 Kadr kopyalandı", audioLoaded: "🎵 Audio yükləndi!"
+            render: "Video yığılır...", saving: "Fayl saxlanılır...", done: "✅ Video yaddaşa verildi!",
+            err: "❌ Eksport xətası", delErr: "Sonuncu kadrı silmək olmaz!", deleted: "🗑️ Kadr silindi", copied: "📋 Kadr kopyalandı"
         }
     };
 
     let currentLang = 'ru';
 
-    // === ПЕРЕМЕННЫЕ ===
     const canvas = document.getElementById('main-canvas');
     const ctx = canvas.getContext('2d');
     
@@ -185,10 +176,6 @@
     let isPlaying = false;
     let playInterval = null;
 
-    let bgAudio = new Audio();
-    let hasAudio = false;
-
-    // UI Элементы
     const framesContainer = document.getElementById('frames-container');
     const btnAddFrame = document.getElementById('btn-add-frame');
     const fpsInput = document.getElementById('fps-input');
@@ -202,10 +189,7 @@
     const brushSize = document.getElementById('brush-size');
     const btnEraser = document.getElementById('btn-eraser');
     const btnClear = document.getElementById('btn-clear');
-    const btnImportAudio = document.getElementById('btn-import-audio');
-    const audioFileInput = document.getElementById('audio-file');
 
-    // === ИНИЦИАЛИЗАЦИЯ ===
     function setupContext() {
         ctx.lineCap = 'round';
         ctx.lineJoin = 'round';
@@ -227,7 +211,6 @@
     renderFramesList();
     loadFrameToCanvas(0);
 
-    // === ФУНКЦИИ ХОЛСТА И КАДРОВ ===
     function loadFrameToCanvas(index) {
         currentFrameIndex = index;
         const img = new Image();
@@ -264,7 +247,6 @@
         }
     }
 
-    // === ЯЗЫКИ ===
     function applyLanguage(lang) {
         currentLang = lang;
         const t = translations[lang];
@@ -273,7 +255,6 @@
         document.getElementById('txt-fps').innerText = t.fps;
         document.getElementById('txt-export').innerText = t.export;
         document.getElementById('txt-brush').innerText = t.brush;
-        document.getElementById('txt-audio').innerText = t.audio;
         btnEraser.innerText = t.eraser;
         btnClear.innerText = t.clear;
         document.getElementById('txt-onion').innerText = t.onion;
@@ -295,34 +276,38 @@
     document.getElementById('btn-lang-en').addEventListener('click', () => applyLanguage('en'));
     document.getElementById('btn-lang-az').addEventListener('click', () => applyLanguage('az'));
 
-    // === АУДИО ===
-    btnImportAudio.addEventListener('click', () => audioFileInput.click());
-    audioFileInput.addEventListener('change', (e) => {
-        if(e.target.files[0]) {
-            bgAudio.src = URL.createObjectURL(e.target.files[0]);
-            hasAudio = true;
-            showToast(translations[currentLang].audioLoaded);
-        }
-    });
-
-    // === УПРАВЛЕНИЕ КАДРАМИ ===
     function setupFrameLongPress(element, index) {
         let pressTimer;
-        let isScrolling = false;
+        let startX, startY;
+        let isMoving = false;
 
         element.addEventListener('pointerdown', (e) => {
-            isScrolling = false;
+            isMoving = false;
+            startX = e.clientX;
+            startY = e.clientY;
             pressTimer = setTimeout(() => {
-                if (!isScrolling) {
+                if (!isMoving) {
                     element.classList.add('deleting');
                     setTimeout(() => deleteFrame(index), 300);
                 }
             }, 600);
         });
 
-        element.addEventListener('pointermove', () => { isScrolling = true; clearTimeout(pressTimer); element.classList.remove('deleting'); });
-        element.addEventListener('pointerup', () => { clearTimeout(pressTimer); element.classList.remove('deleting'); });
-        element.addEventListener('pointercancel', () => { clearTimeout(pressTimer); element.classList.remove('deleting'); });
+        element.addEventListener('pointermove', (e) => {
+            if (Math.abs(e.clientX - startX) > 10 || Math.abs(e.clientY - startY) > 10) {
+                isMoving = true;
+                clearTimeout(pressTimer);
+                element.classList.remove('deleting');
+            }
+        });
+
+        const cancelHold = () => {
+            clearTimeout(pressTimer);
+            element.classList.remove('deleting');
+        };
+
+        element.addEventListener('pointerup', cancelHold);
+        element.addEventListener('pointercancel', cancelHold);
     }
 
     function renderFramesList() {
@@ -394,4 +379,40 @@
     }
 
     function scrollToEnd() {
-        setTimeout(() => docu
+        setTimeout(() => {
+            document.getElementById('timeline-scroll').scrollTo({ left: 9999, behavior: 'smooth' });
+        }, 50);
+    }
+
+    let addPressTimer;
+    let holdProgressInterval;
+    let isLongPressAdd = false;
+    const holdProgressBar = document.getElementById('hold-progress');
+
+    btnAddFrame.addEventListener('pointerdown', (e) => {
+        isLongPressAdd = false;
+        holdProgressBar.style.width = '0%';
+        let startTime = Date.now();
+        holdProgressInterval = setInterval(() => {
+            let percent = Math.min(((Date.now() - startTime) / 500) * 100, 100);
+            holdProgressBar.style.width = `${percent}%`;
+        }, 20);
+
+        addPressTimer = setTimeout(() => {
+            isLongPressAdd = true;
+            clearInterval(holdProgressInterval);
+            holdProgressBar.style.width = '0%';
+            duplicateFrame();
+            showToast(translations[currentLang].copied);
+        }, 500);
+    });
+
+    const cancelAddPress = () => {
+        clearTimeout(addPressTimer);
+        clearInterval(holdProgressInterval);
+        holdProgressBar.style.width = '0%';
+    };
+
+    btnAddFrame.addEventListener('pointerup', (e) => {
+        cancelAddPress();
+        if 
