@@ -135,7 +135,7 @@
 
     <label class="flex items-center gap-2 cursor-pointer shrink-0">
       <input type="checkbox" id="onion-skin-toggle" class="sr-only peer" checked>
-      <div class="w-8 h-4 bg-slate-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:bg-violet-500 relative"></div>
+      <div class="w-8 h-4 bg-slate-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-3 after:w-3 after:transition-all"></div>
       <span id="txt-onion" class="text-xs text-slate-300 font-semibold hidden sm:inline">Калька</span>
     </label>
   </div>
@@ -160,7 +160,7 @@
 
     <div class="flex-1 timeline-scroll no-scrollbar relative" id="timeline-scroll">
       <div class="flex gap-2 items-center h-16 w-max absolute top-0 left-0 px-2" id="frames-container">
-        <button id="btn-add-frame" class="thumb-btn shrink-0 w-14 h-14 rounded-xl border-2 border-dashed border-slate-600 hover:border-violet-400 hover:bg-violet-500/10 text-slate-400 flex items-center justify-center transition flex-col relative select-none">
+        <button id="btn-add-frame" class="thumb-btn shrink-0 w-14 h-14 rounded-xl border-2 border-dashed border-slate-600 hover:border-violet-400 hover:bg-violet-500/10 text-slate-400 flex items-center justify-center relative">
           <svg class="w-6 h-6 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
           </svg>
@@ -503,4 +503,212 @@
       element.addEventListener('pointerleave', clear);
     }
 
-    function startDraw(x
+    function getCanvasCoords(e) {
+      const rect = canvas.getBoundingClientRect();
+      const x = (e.clientX - rect.left) * (CANVAS_WIDTH / rect.width);
+      const y = (e.clientY - rect.top) * (CANVAS_HEIGHT / rect.height);
+      return { x, y };
+    }
+
+    function drawLine(fromX, fromY, toX, toY) {
+      if (isEraser) {
+        ctx.globalCompositeOperation = 'destination-out';
+        ctx.strokeStyle = 'rgba(0,0,0,1)';
+      } else {
+        ctx.globalCompositeOperation = 'source-over';
+        ctx.strokeStyle = currentColor;
+      }
+      ctx.lineWidth = currentSize;
+      ctx.beginPath();
+      ctx.moveTo(fromX, fromY);
+      ctx.lineTo(toX, toY);
+      ctx.stroke();
+    }
+
+    function startDraw(e) {
+      if (isPlaying) return;
+      isDrawing = true;
+      strokeStarted = true;
+      lastPointerId = e.pointerId;
+      const coords = getCanvasCoords(e);
+      currentPos = coords;
+      canvas.setPointerCapture(e.pointerId);
+    }
+
+    function moveDraw(e) {
+      if (!isDrawing || e.pointerId !== lastPointerId) return;
+      const coords = getCanvasCoords(e);
+      if (currentPos) {
+        drawLine(currentPos.x, currentPos.y, coords.x, coords.y);
+      }
+      currentPos = coords;
+    }
+
+    function endDraw(e) {
+      if (!isDrawing || e.pointerId !== lastPointerId) return;
+      isDrawing = false;
+      strokeStarted = false;
+      currentPos = null;
+    }
+
+    function togglePlay() {
+      if (isPlaying) {
+        isPlaying = false;
+        if (playInterval) clearInterval(playInterval);
+      } else {
+        isPlaying = true;
+        currentFrameIndex = 0;
+        const fps = parseInt(fpsInput.value) || 5;
+        const frameDuration = 1000 / fps;
+
+        playInterval = setInterval(() => {
+          currentFrameIndex++;
+          if (currentFrameIndex >= frames.length) {
+            currentFrameIndex = 0;
+          }
+          loadFrameToCanvas(currentFrameIndex);
+        }, frameDuration);
+      }
+      updateUI();
+    }
+
+    async function exportVideo() {
+      if (frames.length === 0) {
+        showToast(translations[currentLang].err);
+        return;
+      }
+
+      statusOverlay.classList.remove('hidden');
+      statusText.innerText = translations[currentLang].render;
+
+      try {
+        const fps = parseInt(fpsInput.value) || 5;
+        const encoder = new Whammy.Video(fps);
+
+        for (let frame of frames) {
+          const img = new Image();
+          await new Promise(resolve => {
+            img.onload = resolve;
+            img.src = frame;
+          });
+
+          const tempCanvas = document.createElement('canvas');
+          tempCanvas.width = CANVAS_WIDTH;
+          tempCanvas.height = CANVAS_HEIGHT;
+          const tempCtx = tempCanvas.getContext('2d');
+          tempCtx.drawImage(img, 0, 0);
+          encoder.add(tempCtx);
+        }
+
+        statusText.innerText = translations[currentLang].saving;
+        const blob = encoder.render();
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'animation.webm';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+
+        showToast(translations[currentLang].done);
+      } catch (err) {
+        console.error(err);
+        showToast(translations[currentLang].err);
+      } finally {
+        statusOverlay.classList.add('hidden');
+      }
+    }
+
+    function setupAddFrameButton() {
+      let pressTimer = null;
+      let progressTimer = null;
+
+      btnAddFrame.addEventListener('pointerdown', (e) => {
+        e.preventDefault();
+        addHoldStart = Date.now();
+        addLongPressed = false;
+
+        progressTimer = setInterval(() => {
+          const elapsed = Date.now() - addHoldStart;
+          const percent = Math.min((elapsed / minHoldToDuplicate) * 100, 100);
+          holdProgressBar.style.width = percent + '%';
+        }, 16);
+
+        pressTimer = setTimeout(() => {
+          addLongPressed = true;
+          holdProgressBar.style.width = '100%';
+        }, minHoldToDuplicate);
+      });
+
+      const endAdd = () => {
+        if (pressTimer) clearTimeout(pressTimer);
+        if (progressTimer) clearInterval(progressTimer);
+        
+        const elapsed = Date.now() - addHoldStart;
+        holdProgressBar.style.width = '0%';
+
+        if (addLongPressed || elapsed >= minHoldToDuplicate) {
+          duplicateFrame();
+        } else {
+          addNewFrame();
+        }
+      };
+
+      btnAddFrame.addEventListener('pointerup', endAdd);
+      btnAddFrame.addEventListener('pointercancel', endAdd);
+      btnAddFrame.addEventListener('pointerleave', endAdd);
+    }
+
+    // Initialize
+    window.addEventListener('load', () => {
+      setCanvasSize();
+      frames.push(getEmptyCanvasDataURL());
+      renderFramesList();
+      loadFrameToCanvas(0);
+      applyLanguage('ru');
+    });
+
+    // Canvas events
+    canvas.addEventListener('pointerdown', startDraw);
+    canvas.addEventListener('pointermove', moveDraw);
+    canvas.addEventListener('pointerup', endDraw);
+    canvas.addEventListener('pointercancel', endDraw);
+    canvas.addEventListener('pointerleave', endDraw);
+
+    // UI Controls
+    document.getElementById('btn-lang-ru').addEventListener('click', () => applyLanguage('ru'));
+    document.getElementById('btn-lang-en').addEventListener('click', () => applyLanguage('en'));
+    document.getElementById('btn-lang-az').addEventListener('click', () => applyLanguage('az'));
+
+    btnPlay.addEventListener('click', togglePlay);
+    btnExport.addEventListener('click', exportVideo);
+
+    colorPicker.addEventListener('change', (e) => {
+      currentColor = e.target.value;
+      isEraser = false;
+    });
+
+    brushSize.addEventListener('change', (e) => {
+      currentSize = parseInt(e.target.value);
+      setupContext();
+    });
+
+    btnEraser.addEventListener('click', () => {
+      isEraser = !isEraser;
+      btnEraser.classList.toggle('bg-slate-700');
+    });
+
+    btnClear.addEventListener('click', () => {
+      ctx.globalCompositeOperation = 'source-over';
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+      saveCurrentFrame();
+    });
+
+    onionSkinToggle.addEventListener('change', updateUI);
+
+    setupAddFrameButton();
+  </script>
+</body>
+</html>
