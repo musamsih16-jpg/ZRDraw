@@ -1,183 +1,246 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Студия Анимации Pro</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/gh/antimatter15/whammy@master/whammy.min.js"></script>
-    <style>
-        body, html {
-            overscroll-behavior-y: contain;
-            -webkit-tap-highlight-color: transparent;
-            /* touch-action: none; ИЗ-ЗА ЭТОГО НЕ РАБОТАЛИ КНОПКИ И СКРОЛЛ НА ТЕЛЕФОНАХ - УДАЛЕНО */
-        }
-        .no-scrollbar::-webkit-scrollbar { display: none; }
-        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-        
-        .checkerboard {
-            background-image: 
-                linear-gradient(45deg, #e2e8f0 25%, transparent 25%), 
-                linear-gradient(-45deg, #e2e8f0 25%, transparent 25%), 
-                linear-gradient(45deg, transparent 75%, #e2e8f0 75%), 
-                linear-gradient(-45deg, transparent 75%, #e2e8f0 75%);
-            background-size: 20px 20px;
-            background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
-            background-color: #f8fafc;
-        }
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Студия Анимации Pro</title>
 
-        .frame-active {
-            border-color: #8b5cf6 !important;
-            box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.3);
-            transform: scale(1.05);
-        }
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/gh/antimatter15/whammy@master/whammy.min.js"></script>
 
-        @keyframes shake {
-            0% { transform: rotate(0deg); }
-            25% { transform: rotate(3deg); }
-            50% { transform: rotate(0deg); }
-            75% { transform: rotate(-3deg); }
-            100% { transform: rotate(0deg); }
-        }
-        .deleting {
-            animation: shake 0.2s ease-in-out infinite;
-            filter: grayscale(100%) brightness(50%) sepia(100%) hue-rotate(-50deg) saturate(600%);
-        }
-    </style>
+  <style>
+    html, body {
+      width: 100%;
+      height: 100%;
+      overscroll-behavior: contain;
+      -webkit-tap-highlight-color: transparent;
+      margin: 0;
+      padding: 0;
+      background: #020617;
+      overflow: hidden;
+      font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+    .checkerboard {
+      background-image:
+        linear-gradient(45deg, #e2e8f0 25%, transparent 25%),
+        linear-gradient(-45deg, #e2e8f0 25%, transparent 25%),
+        linear-gradient(45deg, transparent 75%, #e2e8f0 75%),
+        linear-gradient(-45deg, transparent 75%, #e2e8f0 75%);
+      background-size: 20px 20px;
+      background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
+      background-color: #f8fafc;
+    }
+
+    .frame-active {
+      border-color: #8b5cf6 !important;
+      box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.3);
+      transform: scale(1.05);
+    }
+
+    @keyframes shake {
+      0% { transform: rotate(0deg); }
+      25% { transform: rotate(3deg); }
+      50% { transform: rotate(0deg); }
+      75% { transform: rotate(-3deg); }
+      100% { transform: rotate(0deg); }
+    }
+
+    .deleting {
+      animation: shake 0.2s ease-in-out infinite;
+      filter: grayscale(100%) brightness(50%) sepia(100%) hue-rotate(-50deg) saturate(600%);
+    }
+
+    button, input, label {
+      -webkit-user-select: none;
+      user-select: none;
+      touch-action: manipulation;
+    }
+
+    #main-canvas {
+      touch-action: none;
+    }
+
+    .timeline-scroll {
+      touch-action: pan-x;
+      overflow-x: auto;
+      overflow-y: hidden;
+    }
+
+    .thumb-btn {
+      touch-action: manipulation;
+      -webkit-tap-highlight-color: transparent;
+    }
+  </style>
 </head>
-<body class="bg-slate-950 text-slate-100 h-screen w-screen flex flex-col font-sans overflow-hidden">
 
-    <header class="bg-slate-900 border-b border-slate-800 p-3 flex items-center justify-between z-20 shrink-0 shadow-lg gap-2">
-        <div class="flex items-center gap-2 min-w-0">
-            <div class="w-8 h-8 rounded-lg bg-gradient-to-tr from-violet-600 to-indigo-600 flex items-center justify-center shadow-lg shadow-violet-900/50 shrink-0">
-                <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
-            </div>
-            <div class="truncate">
-                <h1 id="txt-title" class="text-xs sm:text-sm font-bold truncate">Студия Анимации Pro</h1>
-                <p class="text-[8px] sm:text-[9px] text-slate-500 truncate">by Suno Technology Company (Founder: Musa Məsih)</p>
-            </div>
-        </div>
+<body class="bg-slate-950 text-slate-100 h-screen w-screen flex flex-col overflow-hidden">
 
-        <div class="flex bg-slate-950 p-1 rounded-xl border border-slate-800 text-[10px] font-bold shrink-0">
-            <button id="btn-lang-ru" class="px-2 py-1 rounded-lg bg-violet-600 text-white transition">RU</button>
-            <button id="btn-lang-en" class="px-2 py-1 rounded-lg text-slate-400 transition">EN</button>
-            <button id="btn-lang-az" class="px-2 py-1 rounded-lg text-slate-400 transition">AZ</button>
-        </div>
-
-        <div class="flex items-center gap-1.5 shrink-0">
-            <div class="flex items-center gap-1 bg-slate-950 p-1 rounded-xl border border-slate-800">
-                <span id="txt-fps" class="text-[11px] text-slate-400 pl-1 hidden xs:inline">FPS:</span>
-                <input type="number" id="fps-input" value="5" min="1" max="60" class="w-8 sm:w-10 bg-slate-800 text-white text-center rounded-lg py-1 text-xs outline-none focus:ring-2 focus:ring-violet-500">
-                
-                <button id="btn-play" class="bg-violet-600 hover:bg-violet-500 text-white px-2.5 sm:px-3 py-1 rounded-lg text-xs font-bold flex items-center gap-1 transition shadow-lg shadow-violet-900/50">
-                    <span id="play-icon">▶️</span> <span id="play-text" class="hidden sm:inline">Пуск</span>
-                </button>
-            </div>
-            
-            <button id="btn-export" class="bg-emerald-600 hover:bg-emerald-500 text-white px-2.5 sm:px-3 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1 transition shadow-lg shadow-emerald-900/50">
-                📥 <span id="txt-export" class="hidden sm:inline">Экспорт</span>
-            </button>
-        </div>
-    </header>
-
-    <div class="bg-slate-900/50 border-b border-slate-800 p-2 flex items-center justify-start sm:justify-center gap-3 shrink-0 z-10 overflow-x-auto no-scrollbar">
-        <input type="color" id="color-picker" value="#000000" class="w-8 h-8 rounded cursor-pointer bg-transparent border-0 shrink-0">
-        
-        <div class="flex items-center gap-2 shrink-0">
-            <span id="txt-brush" class="text-xs text-slate-400">Кисть:</span>
-            <input type="range" id="brush-size" min="1" max="40" value="5" class="w-20 sm:w-24 accent-violet-500 bg-slate-800 h-1.5 rounded-lg appearance-none cursor-pointer">
-        </div>
-
-        <div class="h-6 w-px bg-slate-800 shrink-0"></div>
-
-        <button id="btn-eraser" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-800 text-slate-300 hover:bg-slate-700 transition shrink-0">Ластик</button>
-        <button id="btn-clear" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-red-950/40 text-red-400 hover:bg-red-900/50 transition shrink-0">Очистить</button>
-        
-        <div class="h-6 w-px bg-slate-800 shrink-0"></div>
-
-        <label class="flex items-center gap-2 cursor-pointer shrink-0">
-            <input type="checkbox" id="onion-skin-toggle" class="sr-only peer" checked>
-            <div class="w-8 h-4 bg-slate-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:bg-violet-500 relative"></div>
-            <span id="txt-onion" class="text-xs text-slate-300 font-semibold hidden sm:inline">Калька</span>
-        </label>
+  <header class="bg-slate-900 border-b border-slate-800 p-3 flex items-center justify-between z-20 shrink-0 shadow-lg gap-2">
+    <div class="flex items-center gap-2 min-w-0">
+      <div class="w-8 h-8 rounded-lg bg-gradient-to-tr from-violet-600 to-indigo-600 flex items-center justify-center shadow-lg shadow-violet-900/50 shrink-0">
+        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
+        </svg>
+      </div>
+      <div class="truncate">
+        <h1 id="txt-title" class="text-xs sm:text-sm font-bold truncate">Студия Анимации Pro</h1>
+        <p class="text-[8px] sm:text-[9px] text-slate-500 truncate">by Suno Technology Company (Founder: Musa Məsih)</p>
+      </div>
     </div>
 
-    <main class="flex-1 w-full flex items-center justify-center p-2 sm:p-4 relative bg-slate-950">
-        <div class="relative w-full max-w-2xl aspect-[4/3] rounded-xl overflow-hidden shadow-2xl border border-slate-700 checkerboard">
-            <img id="onion-skin-layer" class="absolute inset-0 w-full h-full object-contain opacity-30 pointer-events-none hidden">
-            <canvas id="main-canvas" class="absolute inset-0 w-full h-full touch-none cursor-crosshair"></canvas>
-            
-            <div id="status-overlay" class="absolute inset-0 bg-slate-950/80 hidden flex items-center justify-center flex-col pointer-events-auto z-50 backdrop-blur-sm">
-                <div class="w-10 h-10 border-4 border-violet-500 border-t-transparent rounded-full animate-spin mb-3"></div>
-                <span id="status-text" class="text-white font-bold tracking-wide">Рендеринг...</span>
-            </div>
-        </div>
-    </main>
+    <div class="flex bg-slate-950 p-1 rounded-xl border border-slate-800 text-[10px] font-bold shrink-0">
+      <button id="btn-lang-ru" class="px-2 py-1 rounded-lg bg-violet-600 text-white transition">RU</button>
+      <button id="btn-lang-en" class="px-2 py-1 rounded-lg text-slate-400 transition">EN</button>
+      <button id="btn-lang-az" class="px-2 py-1 rounded-lg text-slate-400 transition">AZ</button>
+    </div>
 
-    <footer class="bg-slate-900 border-t border-slate-800 p-2 sm:p-3 shrink-0 h-32 flex flex-col z-20">
-        <div class="flex justify-between items-center mb-2 shrink-0">
-            <span class="text-xs font-bold text-slate-300" id="frame-counter">Кадр 1 из 1</span>
-            <span id="txt-hint" class="text-[10px] text-slate-500 hidden sm:inline">Удержание кадра = Удалить | Удержание [+] = Дублировать</span>
-        </div>
-        
-        <div class="flex-1 overflow-x-auto overflow-y-hidden no-scrollbar relative" id="timeline-scroll" style="touch-action: pan-x;">
-            <div class="flex gap-2 items-center h-16 w-max absolute top-0 left-0 px-2" id="frames-container">
-                <button id="btn-add-frame" class="shrink-0 w-14 h-14 rounded-xl border-2 border-dashed border-slate-600 hover:border-violet-400 hover:bg-violet-500/10 text-slate-400 flex items-center justify-center transition flex-col relative select-none">
-                    <svg class="w-6 h-6 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
-                    <div id="hold-progress" class="absolute bottom-0 left-0 h-1 bg-violet-500 rounded-full w-0 transition-all duration-75"></div>
-                </button>
-            </div>
-        </div>
-    </footer>
+    <div class="flex items-center gap-1.5 shrink-0">
+      <div class="flex items-center gap-1 bg-slate-950 p-1 rounded-xl border border-slate-800">
+        <span id="txt-fps" class="text-[11px] text-slate-400 pl-1 hidden xs:inline">FPS:</span>
+        <input type="number" id="fps-input" value="5" min="1" max="60" class="w-8 sm:w-10 bg-slate-800 text-white text-center rounded-lg py-1 text-xs outline-none focus:ring-2 focus:ring-violet-500">
+        <button id="btn-play" class="bg-violet-600 hover:bg-violet-500 text-white px-2.5 sm:px-3 py-1 rounded-lg text-xs font-bold flex items-center gap-1 transition shadow-lg shadow-violet-900/50">
+          <span id="play-icon">▶️</span>
+          <span id="play-text" class="hidden sm:inline">Пуск</span>
+        </button>
+      </div>
 
-    <div id="toast-container" class="fixed top-16 left-1/2 transform -translate-x-1/2 z-50 flex flex-col gap-2 pointer-events-none"></div>
+      <button id="btn-export" class="bg-emerald-600 hover:bg-emerald-500 text-white px-2.5 sm:px-3 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1 transition shadow-lg shadow-emerald-900/50">
+        📥 <span id="txt-export" class="hidden sm:inline">Экспорт</span>
+      </button>
+    </div>
+  </header>
 
-<script>
-    // СЛОВАРЬ ПЕРЕВОДОВ
+  <div class="bg-slate-900/50 border-b border-slate-800 p-2 flex items-center justify-start sm:justify-center gap-3 shrink-0 z-10 overflow-x-auto no-scrollbar">
+    <input type="color" id="color-picker" value="#000000" class="w-8 h-8 rounded cursor-pointer bg-transparent border-0 shrink-0">
+
+    <div class="flex items-center gap-2 shrink-0">
+      <span id="txt-brush" class="text-xs text-slate-400">Кисть:</span>
+      <input type="range" id="brush-size" min="1" max="40" value="5" class="w-20 sm:w-24 accent-violet-500 bg-slate-800 h-1.5 rounded-lg appearance-none cursor-pointer">
+    </div>
+
+    <div class="h-6 w-px bg-slate-800 shrink-0"></div>
+
+    <button id="btn-eraser" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-800 text-slate-300 hover:bg-slate-700 transition shrink-0">Ластик</button>
+    <button id="btn-clear" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-red-950/40 text-red-400 hover:bg-red-900/50 transition shrink-0">Очистить</button>
+
+    <div class="h-6 w-px bg-slate-800 shrink-0"></div>
+
+    <label class="flex items-center gap-2 cursor-pointer shrink-0">
+      <input type="checkbox" id="onion-skin-toggle" class="sr-only peer" checked>
+      <div class="w-8 h-4 bg-slate-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:bg-violet-500 relative"></div>
+      <span id="txt-onion" class="text-xs text-slate-300 font-semibold hidden sm:inline">Калька</span>
+    </label>
+  </div>
+
+  <main class="flex-1 w-full flex items-center justify-center p-2 sm:p-4 relative bg-slate-950">
+    <div class="relative w-full max-w-2xl aspect-[4/3] rounded-xl overflow-hidden shadow-2xl border border-slate-700 checkerboard">
+      <img id="onion-skin-layer" class="absolute inset-0 w-full h-full object-contain opacity-30 pointer-events-none hidden" alt="onion skin">
+      <canvas id="main-canvas" class="absolute inset-0 w-full h-full cursor-crosshair"></canvas>
+
+      <div id="status-overlay" class="absolute inset-0 bg-slate-950/80 hidden items-center justify-center flex-col pointer-events-auto z-50 backdrop-blur-sm">
+        <div class="w-10 h-10 border-4 border-violet-500 border-t-transparent rounded-full animate-spin mb-3"></div>
+        <span id="status-text" class="text-white font-bold tracking-wide">Рендеринг...</span>
+      </div>
+    </div>
+  </main>
+
+  <footer class="bg-slate-900 border-t border-slate-800 p-2 sm:p-3 shrink-0 h-32 flex flex-col z-20">
+    <div class="flex justify-between items-center mb-2 shrink-0">
+      <span class="text-xs font-bold text-slate-300" id="frame-counter">Кадр 1 из 1</span>
+      <span id="txt-hint" class="text-[10px] text-slate-500 hidden sm:inline">Удержание кадра = Удалить | Удержание [+] = Дублировать</span>
+    </div>
+
+    <div class="flex-1 timeline-scroll no-scrollbar relative" id="timeline-scroll">
+      <div class="flex gap-2 items-center h-16 w-max absolute top-0 left-0 px-2" id="frames-container">
+        <button id="btn-add-frame" class="thumb-btn shrink-0 w-14 h-14 rounded-xl border-2 border-dashed border-slate-600 hover:border-violet-400 hover:bg-violet-500/10 text-slate-400 flex items-center justify-center transition flex-col relative select-none">
+          <svg class="w-6 h-6 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+          </svg>
+          <div id="hold-progress" class="absolute bottom-0 left-0 h-1 bg-violet-500 rounded-full w-0 transition-all duration-75"></div>
+        </button>
+      </div>
+    </div>
+  </footer>
+
+  <div id="toast-container" class="fixed top-16 left-1/2 transform -translate-x-1/2 z-50 flex flex-col gap-2 pointer-events-none"></div>
+
+  <script>
     const translations = {
-        ru: {
-            title: "Студия Анимации Pro", fps: "FPS:", play: "Пуск", stop: "Стоп", export: "Экспорт",
-            brush: "Кисть:", eraser: "Ластик", clear: "Очистить", onion: "Калька",
-            frameOf: "Кадр {x} из {y}", hint: "Удержание кадра = Удалить | Удержание [+] = Дублировать",
-            render: "Сборка видео...", saving: "Сохранение файла...", done: "✅ Видео сохранено в Загрузки!",
-            err: "❌ Ошибка при экспорте", delErr: "Нельзя удалить последний кадр!", deleted: "🗑️ Кадр удален", copied: "📋 Кадр скопирован"
-        },
-        en: {
-            title: "Animation Studio Pro", fps: "FPS:", play: "Play", stop: "Stop", export: "Export",
-            brush: "Brush:", eraser: "Eraser", clear: "Clear", onion: "Onion Skin",
-            frameOf: "Frame {x} of {y}", hint: "Hold frame = Delete | Hold [+] = Duplicate",
-            render: "Rendering video...", saving: "Saving file...", done: "✅ Video saved to Downloads!",
-            err: "❌ Export error", delErr: "Cannot delete the last frame!", deleted: "🗑️ Frame deleted", copied: "📋 Frame duplicated"
-        },
-        az: {
-            title: "Animasiya Studiyası Pro", fps: "FPS:", play: "Başlat", stop: "Dayandır", export: "Eksport",
-            brush: "Fırça:", eraser: "Pozan", clear: "Təmizlə", onion: "Kalka",
-            frameOf: "Kadr {x} / {y}", hint: "Kadra basıb saxlayın = Sil | [+] basıb saxlayın = Kopyala",
-            render: "Video yığılır...", saving: "Fayl saxlanılır...", done: "✅ Video Yükləmələrə yazıldı!",
-            err: "❌ Eksport xətası", delErr: "Sonuncu kadrı silmək olmaz!", deleted: "🗑️ Kadr silindi", copied: "📋 Kadr kopyalandı"
-        }
+      ru: {
+        title: "Студия Анимации Pro",
+        fps: "FPS:",
+        play: "Пуск",
+        stop: "Стоп",
+        export: "Экспорт",
+        brush: "Кисть:",
+        eraser: "Ластик",
+        clear: "Очистить",
+        onion: "Калька",
+        frameOf: "Кадр {x} из {y}",
+        hint: "Удержание кадра = Удалить | Удержание [+] = Дублировать",
+        render: "Сборка видео...",
+        saving: "Сохранение файла...",
+        done: "✅ Видео сохранено в Загрузки!",
+        err: "❌ Ошибка при экспорте",
+        delErr: "Нельзя удалить последний кадр!",
+        deleted: "🗑️ Кадр удален",
+        copied: "📋 Кадр скопирован"
+      },
+      en: {
+        title: "Animation Studio Pro",
+        fps: "FPS:",
+        play: "Play",
+        stop: "Stop",
+        export: "Export",
+        brush: "Brush:",
+        eraser: "Eraser",
+        clear: "Clear",
+        onion: "Onion Skin",
+        frameOf: "Frame {x} of {y}",
+        hint: "Hold frame = Delete | Hold [+] = Duplicate",
+        render: "Rendering video...",
+        saving: "Saving file...",
+        done: "✅ Video saved to Downloads!",
+        err: "❌ Export error",
+        delErr: "Cannot delete the last frame!",
+        deleted: "🗑️ Frame deleted",
+        copied: "📋 Frame duplicated"
+      },
+      az: {
+        title: "Animasiya Studiyası Pro",
+        fps: "FPS:",
+        play: "Başlat",
+        stop: "Dayandır",
+        export: "Eksport",
+        brush: "Fırça:",
+        eraser: "Pozan",
+        clear: "Təmizlə",
+        onion: "Kalka",
+        frameOf: "Kadr {x} / {y}",
+        hint: "Kadra basıb saxlayın = Sil | [+] basıb saxlayın = Kopyala",
+        render: "Video yığılır...",
+        saving: "Fayl saxlanılır...",
+        done: "✅ Video Yükləmələrə yazıldı!",
+        err: "❌ Eksport xətası",
+        delErr: "Sonuncu kadrı silmək olmaz!",
+        deleted: "🗑️ Kadr silindi",
+        copied: "📋 Kadr kopyalandı"
+      }
     };
 
-    let currentLang = 'ru';
-
-    const canvas = document.getElementById('main-canvas');
-    const ctx = canvas.getContext('2d');
-    
     const CANVAS_WIDTH = 800;
     const CANVAS_HEIGHT = 600;
-    canvas.width = CANVAS_WIDTH;
-    canvas.height = CANVAS_HEIGHT;
 
-    let frames = [];
-    let currentFrameIndex = 0;
-    
-    let isDrawing = false;
-    let isEraser = false;
-    let currentColor = '#000000';
-    let currentSize = 5;
-    
-    let isPlaying = false;
-    let playInterval = null;
+    const canvas = document.getElementById('main-canvas');
+    const ctx = canvas.getContext('2d', { willReadFrequently: false });
 
     const framesContainer = document.getElementById('frames-container');
     const btnAddFrame = document.getElementById('btn-add-frame');
@@ -192,215 +255,252 @@
     const brushSize = document.getElementById('brush-size');
     const btnEraser = document.getElementById('btn-eraser');
     const btnClear = document.getElementById('btn-clear');
+    const onionSkinToggle = document.getElementById('onion-skin-toggle');
+    const onionLayer = document.getElementById('onion-skin-layer');
+    const frameCounter = document.getElementById('frame-counter');
+    const toastContainer = document.getElementById('toast-container');
+    const timelineScroll = document.getElementById('timeline-scroll');
+    const holdProgressBar = document.getElementById('hold-progress');
+
+    let currentLang = 'ru';
+    let currentFrameIndex = 0;
+    let frames = [];
+    let isPlaying = false;
+    let playInterval = null;
+    let isDrawing = false;
+    let isEraser = false;
+    let currentColor = '#000000';
+    let currentSize = 5;
+    let lastPointerId = null;
+    let currentPos = null;
+    let strokeStarted = false;
+
+    let addHoldTimer = null;
+    let addHoldProgressTimer = null;
+    let addHoldStart = 0;
+    let addLongPressed = false;
+
+    const minHoldToDuplicate = 500;
+
+    function setCanvasSize() {
+      canvas.width = CANVAS_WIDTH;
+      canvas.height = CANVAS_HEIGHT;
+      canvas.style.width = '100%';
+      canvas.style.height = '100%';
+      canvas.style.touchAction = 'none';
+      canvas.style.display = 'block';
+      setupContext();
+    }
 
     function setupContext() {
-        ctx.lineCap = 'round';
-        ctx.lineJoin = 'round';
-        ctx.lineWidth = currentSize;
+      ctx.lineCap = 'round';
+      ctx.lineJoin = 'round';
+      ctx.lineWidth = currentSize;
     }
-    setupContext();
 
     function getEmptyCanvasDataURL() {
-        const tempCanvas = document.createElement('canvas');
-        tempCanvas.width = CANVAS_WIDTH;
-        tempCanvas.height = CANVAS_HEIGHT;
-        const tempCtx = tempCanvas.getContext('2d');
-        tempCtx.fillStyle = '#ffffff';
-        tempCtx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
-        return tempCanvas.toDataURL('image/png');
+      const tempCanvas = document.createElement('canvas');
+      tempCanvas.width = CANVAS_WIDTH;
+      tempCanvas.height = CANVAS_HEIGHT;
+      const tempCtx = tempCanvas.getContext('2d');
+      tempCtx.fillStyle = '#ffffff';
+      tempCtx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+      return tempCanvas.toDataURL('image/png');
     }
 
-    frames.push(getEmptyCanvasDataURL());
-    renderFramesList();
-    loadFrameToCanvas(0);
-
-    function loadFrameToCanvas(index) {
-        currentFrameIndex = index;
-        const img = new Image();
-        img.onload = () => {
-            ctx.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
-            ctx.globalCompositeOperation = 'source-over';
-            ctx.drawImage(img, 0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
-            updateUI();
-        };
-        img.src = frames[index];
-    }
-
-    function saveCurrentFrame() {
-        frames[currentFrameIndex] = canvas.toDataURL('image/png');
-        const thumbImg = document.getElementById(`thumb-img-${currentFrameIndex}`);
-        if (thumbImg) thumbImg.src = frames[currentFrameIndex];
+    function showToast(message) {
+      const toast = document.createElement('div');
+      toast.className = 'px-4 py-2 rounded-xl bg-slate-900 border border-slate-700 text-sm text-white shadow-lg';
+      toast.textContent = message;
+      toastContainer.appendChild(toast);
+      setTimeout(() => {
+        toast.style.opacity = '0';
+        toast.style.transform = 'translateY(-8px)';
+        toast.style.transition = 'all .25s ease';
+        setTimeout(() => toast.remove(), 300);
+      }, 1400);
     }
 
     function updateUI() {
-        const t = translations[currentLang];
-        document.getElementById('frame-counter').innerText = t.frameOf.replace('{x}', currentFrameIndex + 1).replace('{y}', frames.length);
-        
-        document.querySelectorAll('.frame-thumb').forEach((el, idx) => {
-            el.classList.toggle('frame-active', idx === currentFrameIndex);
-        });
+      const t = translations[currentLang];
+      frameCounter.innerText = t.frameOf.replace('{x}', currentFrameIndex + 1).replace('{y}', frames.length);
 
-        const onionSkinToggle = document.getElementById('onion-skin-toggle');
-        const onionLayer = document.getElementById('onion-skin-layer');
-        if (onionSkinToggle.checked && currentFrameIndex > 0 && !isPlaying) {
-            onionLayer.src = frames[currentFrameIndex - 1];
-            onionLayer.classList.remove('hidden');
-        } else {
-            onionLayer.classList.add('hidden');
-        }
+      document.querySelectorAll('.frame-thumb').forEach((el, idx) => {
+        el.classList.toggle('frame-active', idx === currentFrameIndex);
+      });
+
+      if (onionSkinToggle.checked && currentFrameIndex > 0 && !isPlaying) {
+        onionLayer.src = frames[currentFrameIndex - 1];
+        onionLayer.classList.remove('hidden');
+      } else {
+        onionLayer.classList.add('hidden');
+      }
+
+      playText.innerText = isPlaying ? t.stop : t.play;
+      playIcon.innerText = isPlaying ? '⏸️' : '▶️';
     }
 
-    // ЛОКАЛИЗАЦИЯ ИНТЕРФЕЙСА
     function applyLanguage(lang) {
-        currentLang = lang;
-        const t = translations[lang];
-        
-        document.getElementById('txt-title').innerText = t.title;
-        document.getElementById('txt-fps').innerText = t.fps;
-        document.getElementById('txt-export').innerText = t.export;
-        document.getElementById('txt-brush').innerText = t.brush;
-        btnEraser.innerText = t.eraser;
-        btnClear.innerText = t.clear;
-        document.getElementById('txt-onion').innerText = t.onion;
-        document.getElementById('txt-hint').innerText = t.hint;
-        playText.innerText = isPlaying ? t.stop : t.play;
-        
-        // Переключаем подсветку кнопок языков
-        ['ru', 'en', 'az'].forEach(l => {
-            const btn = document.getElementById(`btn-lang-${l}`);
-            if (l === lang) {
-                btn.className = "px-2 py-1 rounded-lg bg-violet-600 text-white transition";
-            } else {
-                btn.className = "px-2 py-1 rounded-lg text-slate-400 transition";
-            }
-        });
-        updateUI();
+      currentLang = lang;
+      const t = translations[lang];
+
+      document.getElementById('txt-title').innerText = t.title;
+      document.getElementById('txt-fps').innerText = t.fps;
+      document.getElementById('txt-export').innerText = t.export;
+      document.getElementById('txt-brush').innerText = t.brush;
+      btnEraser.innerText = t.eraser;
+      btnClear.innerText = t.clear;
+      document.getElementById('txt-onion').innerText = t.onion;
+      document.getElementById('txt-hint').innerText = t.hint;
+
+      ['ru', 'en', 'az'].forEach(l => {
+        const btn = document.getElementById(`btn-lang-${l}`);
+        if (l === lang) {
+          btn.className = "px-2 py-1 rounded-lg bg-violet-600 text-white transition";
+        } else {
+          btn.className = "px-2 py-1 rounded-lg text-slate-400 transition";
+        }
+      });
+
+      updateUI();
     }
 
-    document.getElementById('btn-lang-ru').addEventListener('click', () => applyLanguage('ru'));
-    document.getElementById('btn-lang-en').addEventListener('click', () => applyLanguage('en'));
-    document.getElementById('btn-lang-az').addEventListener('click', () => applyLanguage('az'));
+    function saveCurrentFrame() {
+      frames[currentFrameIndex] = canvas.toDataURL('image/png');
+      const thumbImg = document.getElementById(`thumb-img-${currentFrameIndex}`);
+      if (thumbImg) thumbImg.src = frames[currentFrameIndex];
+    }
 
-    function setupFrameLongPress(element, index) {
-        let pressTimer;
-        let isScrolling = false;
-
-        const startHold = (e) => {
-            if (e.touches && e.touches.length > 1) return;
-            isScrolling = false;
-            pressTimer = setTimeout(() => {
-                if (!isScrolling) {
-                    element.classList.add('deleting');
-                    setTimeout(() => deleteFrame(index), 300);
-                }
-            }, 600);
-        };
-
-        const cancelHold = () => {
-            clearTimeout(pressTimer);
-            element.classList.remove('deleting');
-        };
-
-        element.addEventListener('touchstart', startHold, {passive: true});
-        element.addEventListener('touchmove', () => { isScrolling = true; cancelHold(); }, {passive: true});
-        element.addEventListener('touchend', cancelHold);
-        
-        element.addEventListener('mousedown', startHold);
-        element.addEventListener('mousemove', () => cancelHold());
-        element.addEventListener('mouseup', cancelHold);
-        element.addEventListener('mouseleave', cancelHold);
+    function loadFrameToCanvas(index) {
+      currentFrameIndex = index;
+      const img = new Image();
+      img.onload = () => {
+        ctx.globalCompositeOperation = 'source-over';
+        ctx.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+        ctx.drawImage(img, 0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+        updateUI();
+      };
+      img.src = frames[index];
     }
 
     function renderFramesList() {
-        const thumbs = framesContainer.querySelectorAll('.frame-thumb-container');
-        thumbs.forEach(t => t.remove());
+      [...framesContainer.querySelectorAll('.frame-thumb-container')].forEach(t => t.remove());
 
-        frames.forEach((frameData, index) => {
-            const container = document.createElement('div');
-            container.className = 'frame-thumb-container shrink-0 cursor-pointer relative group w-14 h-14';
-            
-            const thumb = document.createElement('div');
-            thumb.className = `frame-thumb w-full h-full bg-white rounded-xl border-2 border-slate-700 overflow-hidden transition-all duration-200 checkerboard`;
-            
-            thumb.onclick = () => {
-                if (isPlaying) togglePlay();
-                saveCurrentFrame();
-                loadFrameToCanvas(index);
-            };
+      frames.forEach((frameData, index) => {
+        const container = document.createElement('div');
+        container.className = 'frame-thumb-container shrink-0 cursor-pointer relative group w-14 h-14';
 
-            const img = document.createElement('img');
-            img.id = `thumb-img-${index}`;
-            img.src = frameData;
-            img.className = 'w-full h-full object-contain pointer-events-none';
-            
-            const numBadge = document.createElement('div');
-            numBadge.className = 'absolute top-1 left-1 bg-black/70 text-white text-[9px] px-1 rounded font-mono pointer-events-none';
-            numBadge.innerText = index + 1;
+        const thumb = document.createElement('div');
+        thumb.className = 'frame-thumb w-full h-full bg-white rounded-xl border-2 border-slate-700 overflow-hidden transition-all duration-200 checkerboard';
 
-            thumb.appendChild(img);
-            container.appendChild(thumb);
-            container.appendChild(numBadge);
-            
-            setupFrameLongPress(container, index);
-            framesContainer.insertBefore(container, btnAddFrame);
+        const img = document.createElement('img');
+        img.id = `thumb-img-${index}`;
+        img.src = frameData;
+        img.alt = `frame ${index + 1}`;
+        img.className = 'w-full h-full object-contain pointer-events-none';
+
+        const numBadge = document.createElement('div');
+        numBadge.className = 'absolute top-1 left-1 bg-black/70 text-white text-[9px] px-1 rounded font-mono pointer-events-none';
+        numBadge.innerText = index + 1;
+
+        thumb.appendChild(img);
+        container.appendChild(thumb);
+        container.appendChild(numBadge);
+
+        thumb.addEventListener('pointerup', (e) => {
+          e.preventDefault();
+          if (isPlaying) togglePlay();
+          saveCurrentFrame();
+          loadFrameToCanvas(index);
         });
-        updateUI();
+
+        setupFrameLongPress(container, index);
+        framesContainer.insertBefore(container, btnAddFrame);
+      });
+
+      updateUI();
     }
 
     function deleteFrame(index) {
-        if (frames.length <= 1) {
-            showToast(translations[currentLang].delErr);
-            return;
-        }
-        frames.splice(index, 1);
-        if (currentFrameIndex >= frames.length) currentFrameIndex = frames.length - 1;
-        else if (currentFrameIndex > index) currentFrameIndex--;
-        
-        renderFramesList();
-        loadFrameToCanvas(currentFrameIndex);
-        showToast(translations[currentLang].deleted);
+      if (frames.length <= 1) {
+        showToast(translations[currentLang].delErr);
+        return;
+      }
+
+      frames.splice(index, 1);
+
+      if (currentFrameIndex >= frames.length) {
+        currentFrameIndex = frames.length - 1;
+      } else if (currentFrameIndex > index) {
+        currentFrameIndex--;
+      }
+
+      renderFramesList();
+      loadFrameToCanvas(currentFrameIndex);
+      showToast(translations[currentLang].deleted);
     }
 
     function addNewFrame() {
-        saveCurrentFrame();
-        frames.push(getEmptyCanvasDataURL());
-        currentFrameIndex = frames.length - 1;
-        renderFramesList();
-        loadFrameToCanvas(currentFrameIndex);
-        scrollToEnd();
+      saveCurrentFrame();
+      frames.push(getEmptyCanvasDataURL());
+      currentFrameIndex = frames.length - 1;
+      renderFramesList();
+      loadFrameToCanvas(currentFrameIndex);
+      scrollToEnd();
     }
 
     function duplicateFrame() {
-        saveCurrentFrame();
-        frames.push(frames[currentFrameIndex]);
-        currentFrameIndex = frames.length - 1;
-        renderFramesList();
-        loadFrameToCanvas(currentFrameIndex);
-        scrollToEnd();
+      saveCurrentFrame();
+      frames.push(frames[currentFrameIndex]);
+      currentFrameIndex = frames.length - 1;
+      renderFramesList();
+      loadFrameToCanvas(currentFrameIndex);
+      scrollToEnd();
+      showToast(translations[currentLang].copied);
     }
 
     function scrollToEnd() {
-        setTimeout(() => {
-            document.getElementById('timeline-scroll').scrollTo({ left: 9999, behavior: 'smooth' });
-        }, 50);
+      setTimeout(() => {
+        timelineScroll.scrollTo({ left: timelineScroll.scrollWidth, behavior: 'smooth' });
+      }, 50);
     }
 
-    let addPressTimer;
-    let holdProgressInterval;
-    let isLongPressAdd = false;
-    const holdProgressBar = document.getElementById('hold-progress');
+    function setupFrameLongPress(element, index) {
+      let pressTimer = null;
+      let moved = false;
+      let pointerDown = false;
 
-    const startAddPress = (e) => {
-        if (e.touches && e.touches.length > 1) return;
-        isLongPressAdd = false;
-        holdProgressBar.style.width = '0%';
-        let startTime = Date.now();
-        holdProgressInterval = setInterval(() => {
-            let percent = Math.min(((Date.now() - startTime) / 500) * 100, 100);
-            holdProgressBar.style.width = `${percent}%`;
-        }, 20);
+      const clear = () => {
+        if (pressTimer) clearTimeout(pressTimer);
+        pressTimer = null;
+        element.classList.remove('deleting');
+        pointerDown = false;
+        moved = false;
+      };
 
-        addPressTimer = setTimeout(() => {
-            isLongPressAdd = true;
-            clearInterval(holdProgressInterval);
-            holdProgressBar.style.
+      element.addEventListener('pointerdown', (e) => {
+        e.preventDefault();
+        if (e.pointerType === 'mouse' && e.button !== 0) return;
+        pointerDown = true;
+        moved = false;
+
+        pressTimer = setTimeout(() => {
+          if (pointerDown && !moved) {
+            element.classList.add('deleting');
+            setTimeout(() => deleteFrame(index), 180);
+          }
+        }, 600);
+      });
+
+      element.addEventListener('pointermove', () => {
+        if (!pointerDown) return;
+        moved = true;
+        clear();
+      });
+
+      element.addEventListener('pointerup', clear);
+      element.addEventListener('pointercancel', clear);
+      element.addEventListener('pointerleave', clear);
+    }
+
+    function startDraw(x
