@@ -5,14 +5,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Студия Анимации Pro</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/gh/antimatter15/whammy@master/whammy.min.js"></script>
     <style>
         body, html {
             overscroll-behavior-y: contain;
             -webkit-tap-highlight-color: transparent;
         }
         .no-scrollbar::-webkit-scrollbar { display: none; }
-        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        .no-scrollbar { 
+            -ms-overflow-style: none; 
+            scrollbar-width: none; 
+            -webkit-overflow-scrolling: touch; 
+        }
         
         .checkerboard {
             background-image: 
@@ -99,6 +102,13 @@
             <div class="w-8 h-4 bg-slate-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:bg-violet-500 relative"></div>
             <span id="txt-onion" class="text-xs text-slate-300 font-semibold hidden sm:inline">Калька</span>
         </label>
+
+        <div class="h-6 w-px bg-slate-800 shrink-0"></div>
+        
+        <button id="btn-audio" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-blue-900/40 text-blue-400 hover:bg-blue-800/50 transition shrink-0 flex items-center gap-1">
+            🎵 <span id="txt-audio">Аудио</span>
+        </button>
+        <input type="file" id="audio-file" accept="audio/*" class="hidden">
     </div>
 
     <main class="flex-1 w-full flex items-center justify-center p-2 sm:p-4 relative bg-slate-950">
@@ -108,7 +118,7 @@
             
             <div id="status-overlay" class="absolute inset-0 bg-slate-950/80 hidden flex-col items-center justify-center pointer-events-auto z-50 backdrop-blur-sm">
                 <div class="w-10 h-10 border-4 border-violet-500 border-t-transparent rounded-full animate-spin mb-3"></div>
-                <span id="status-text" class="text-white font-bold tracking-wide">Рендеринг...</span>
+                <span id="status-text" class="text-white font-bold tracking-wide text-center px-4">Запись видео...</span>
             </div>
         </div>
     </main>
@@ -119,7 +129,7 @@
             <span id="txt-hint" class="text-[10px] text-slate-500 hidden sm:inline">Удержание кадра = Удалить | Удержание [+] = Дублировать</span>
         </div>
         
-        <div class="flex-1 overflow-x-auto overflow-y-hidden no-scrollbar relative" id="timeline-scroll" style="touch-action: pan-x;">
+        <div class="flex-1 overflow-x-auto overflow-y-hidden no-scrollbar relative" id="timeline-scroll">
             <div class="flex gap-2 items-center h-16 w-max absolute top-0 left-0 px-2" id="frames-container">
                 <button id="btn-add-frame" class="shrink-0 w-14 h-14 rounded-xl border-2 border-dashed border-slate-600 hover:border-violet-400 hover:bg-violet-500/10 text-slate-400 flex items-center justify-center transition flex-col relative select-none">
                     <svg class="w-6 h-6 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
@@ -135,24 +145,27 @@
     const translations = {
         ru: {
             title: "Студия Анимации Pro", fps: "FPS:", play: "Пуск", stop: "Стоп", export: "Экспорт",
-            brush: "Кисть:", eraser: "Ластик", clear: "Очистить", onion: "Калька",
+            brush: "Кисть:", eraser: "Ластик", clear: "Очистить", onion: "Калька", audio: "Аудио",
             frameOf: "Кадр {x} из {y}", hint: "Удержание кадра = Удалить | Удержание [+] = Дублировать",
-            render: "Сборка видео...", saving: "Сохранение файла...", done: "✅ Видео сохранено в Загрузки!",
-            err: "❌ Ошибка при экспорте", delErr: "Нельзя удалить последний кадр!", deleted: "🗑️ Кадр удален", copied: "📋 Кадр скопирован"
+            render: "Сборка видео... Подождите", saving: "Сохранение файла...", done: "✅ Видео сохранено в Загрузки!",
+            err: "❌ Ошибка при экспорте", delErr: "Нельзя удалить последний кадр!", deleted: "🗑️ Кадр удален", 
+            copied: "📋 Кадр скопирован", audioLoaded: "🎵 Звук загружен!"
         },
         en: {
             title: "Animation Studio Pro", fps: "FPS:", play: "Play", stop: "Stop", export: "Export",
-            brush: "Brush:", eraser: "Eraser", clear: "Clear", onion: "Onion Skin",
+            brush: "Brush:", eraser: "Eraser", clear: "Clear", onion: "Onion Skin", audio: "Audio",
             frameOf: "Frame {x} of {y}", hint: "Hold frame = Delete | Hold [+] = Duplicate",
-            render: "Rendering video...", saving: "Saving file...", done: "✅ Video saved to Downloads!",
-            err: "❌ Export error", delErr: "Cannot delete the last frame!", deleted: "🗑️ Frame deleted", copied: "📋 Frame duplicated"
+            render: "Recording video... Please wait", saving: "Saving file...", done: "✅ Video saved to Downloads!",
+            err: "❌ Export error", delErr: "Cannot delete the last frame!", deleted: "🗑️ Frame deleted", 
+            copied: "📋 Frame duplicated", audioLoaded: "🎵 Audio loaded!"
         },
         az: {
             title: "Animasiya Studiyası Pro", fps: "FPS:", play: "Başlat", stop: "Dayandır", export: "Eksport",
-            brush: "Fırça:", eraser: "Pozan", clear: "Təmizlə", onion: "Kalka",
+            brush: "Fırça:", eraser: "Pozan", clear: "Təmizlə", onion: "Kalka", audio: "Audio",
             frameOf: "Kadr {x} / {y}", hint: "Kadra basıb saxlayın = Sil | [+] basıb saxlayın = Kopyala",
-            render: "Video yığılır...", saving: "Fayl saxlanılır...", done: "✅ Video Yükləmələrə yazıldı!",
-            err: "❌ Eksport xətası", delErr: "Sonuncu kadrı silmək olmaz!", deleted: "🗑️ Kadr silindi", copied: "📋 Kadr kopyalandı"
+            render: "Video yazılır... Gözləyin", saving: "Fayl saxlanılır...", done: "✅ Video Yükləmələrə yazıldı!",
+            err: "❌ Eksport xətası", delErr: "Sonuncu kadrı silmək olmaz!", deleted: "🗑️ Kadr silindi", 
+            copied: "📋 Kadr kopyalandı", audioLoaded: "🎵 Audio yükləndi!"
         }
     };
 
@@ -176,6 +189,10 @@
     
     let isPlaying = false;
     let playInterval = null;
+
+    // Audio variables
+    let bgAudio = new Audio();
+    let hasAudio = false;
 
     const framesContainer = document.getElementById('frames-container');
     const btnAddFrame = document.getElementById('btn-add-frame');
@@ -256,6 +273,7 @@
         document.getElementById('txt-fps').innerText = t.fps;
         document.getElementById('txt-export').innerText = t.export;
         document.getElementById('txt-brush').innerText = t.brush;
+        document.getElementById('txt-audio').innerText = t.audio;
         btnEraser.innerText = t.eraser;
         btnClear.innerText = t.clear;
         document.getElementById('txt-onion').innerText = t.onion;
@@ -277,34 +295,55 @@
     document.getElementById('btn-lang-en').addEventListener('click', () => applyLanguage('en'));
     document.getElementById('btn-lang-az').addEventListener('click', () => applyLanguage('az'));
 
+    // --- ЛОГИКА АУДИО ---
+    document.getElementById('btn-audio').addEventListener('click', () => {
+        document.getElementById('audio-file').click();
+    });
+
+    document.getElementById('audio-file').addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            bgAudio.src = URL.createObjectURL(file);
+            hasAudio = true;
+            showToast(translations[currentLang].audioLoaded);
+        }
+    });
+
+    // --- ПРАВИЛЬНЫЕ УДЕРЖАНИЯ КНОПОК БЕЗ ДВОЙНОГО СРАБАТЫВАНИЯ ---
     function setupFrameLongPress(element, index) {
         let pressTimer;
         let isScrolling = false;
+        let startX, startY;
 
-        const startHold = (e) => {
-            if (e.touches && e.touches.length > 1) return;
+        element.addEventListener('pointerdown', (e) => {
             isScrolling = false;
+            startX = e.clientX;
+            startY = e.clientY;
+            
             pressTimer = setTimeout(() => {
                 if (!isScrolling) {
                     element.classList.add('deleting');
                     setTimeout(() => deleteFrame(index), 300);
                 }
             }, 600);
-        };
+        });
+
+        element.addEventListener('pointermove', (e) => {
+            if (Math.abs(e.clientX - startX) > 10 || Math.abs(e.clientY - startY) > 10) {
+                isScrolling = true;
+                clearTimeout(pressTimer);
+                element.classList.remove('deleting');
+            }
+        });
 
         const cancelHold = () => {
             clearTimeout(pressTimer);
             element.classList.remove('deleting');
         };
 
-        element.addEventListener('touchstart', startHold, {passive: true});
-        element.addEventListener('touchmove', () => { isScrolling = true; cancelHold(); }, {passive: true});
-        element.addEventListener('touchend', cancelHold);
-        
-        element.addEventListener('mousedown', startHold);
-        element.addEventListener('mousemove', () => cancelHold());
-        element.addEventListener('mouseup', cancelHold);
-        element.addEventListener('mouseleave', cancelHold);
+        element.addEventListener('pointerup', cancelHold);
+        element.addEventListener('pointercancel', cancelHold);
+        element.addEventListener('pointerleave', cancelHold);
     }
 
     function renderFramesList() {
@@ -367,44 +406,4 @@
     }
 
     function duplicateFrame() {
-        saveCurrentFrame();
-        frames.push(frames[currentFrameIndex]);
-        currentFrameIndex = frames.length - 1;
-        renderFramesList();
-        loadFrameToCanvas(currentFrameIndex);
-        scrollToEnd();
-    }
-
-    function scrollToEnd() {
-        setTimeout(() => {
-            document.getElementById('timeline-scroll').scrollTo({ left: 9999, behavior: 'smooth' });
-        }, 50);
-    }
-
-    let addPressTimer;
-    let holdProgressInterval;
-    let isLongPressAdd = false;
-    const holdProgressBar = document.getElementById('hold-progress');
-
-    const startAddPress = (e) => {
-        if (e.touches && e.touches.length > 1) return;
-        isLongPressAdd = false;
-        holdProgressBar.style.width = '0%';
-        let startTime = Date.now();
-        holdProgressInterval = setInterval(() => {
-            let percent = Math.min(((Date.now() - startTime) / 500) * 100, 100);
-            holdProgressBar.style.width = `${percent}%`;
-        }, 20);
-
-        addPressTimer = setTimeout(() => {
-            isLongPressAdd = true;
-            clearInterval(holdProgressInterval);
-            holdProgressBar.style.width = '0%';
-            duplicateFrame();
-            showToast(translations[currentLang].copied);
-        }, 500);
-    };
-
-    const cancelAddPress = () => {
-        clearTimeout(addPressTimer);
-        cl
+   
