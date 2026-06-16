@@ -98,12 +98,16 @@
             <div class="w-8 h-4 bg-slate-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:bg-violet-500 relative"></div>
             <span id="txt-onion" class="text-xs text-slate-300 font-semibold hidden sm:inline">Калька</span>
         </label>
+        
+        <div class="h-6 w-px bg-slate-800 shrink-0"></div>
+        <button id="btn-audio" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-blue-900/40 text-blue-400 hover:bg-blue-800/50 transition shrink-0">🎵 Звук</button>
+        <input type="file" id="audio-input" accept="audio/*" class="hidden">
     </div>
 
     <main class="flex-1 w-full flex items-center justify-center p-2 sm:p-4 relative bg-slate-950">
         <div class="relative w-full max-w-2xl aspect-[4/3] rounded-xl overflow-hidden shadow-2xl border border-slate-700 checkerboard">
             <img id="onion-skin-layer" class="absolute inset-0 w-full h-full object-contain opacity-30 pointer-events-none hidden">
-            <canvas id="main-canvas" class="absolute inset-0 w-full h-full touch-none cursor-crosshair"></canvas>
+            <canvas id="main-canvas" class="absolute inset-0 w-full h-full cursor-crosshair"></canvas>
             
             <div id="status-overlay" class="absolute inset-0 bg-slate-950/80 hidden flex-col items-center justify-center pointer-events-auto z-50 backdrop-blur-sm">
                 <div class="w-10 h-10 border-4 border-violet-500 border-t-transparent rounded-full animate-spin mb-3"></div>
@@ -118,7 +122,7 @@
             <span id="txt-hint" class="text-[10px] text-slate-500 hidden sm:inline">Удержание кадра = Удалить | Удержание [+] = Дублировать</span>
         </div>
         
-        <div class="flex-1 overflow-x-auto overflow-y-hidden no-scrollbar relative" id="timeline-scroll" style="touch-action: pan-x;">
+        <div class="flex-1 overflow-x-auto overflow-y-hidden no-scrollbar relative" id="timeline-scroll">
             <div class="flex gap-2 items-center h-16 w-max absolute top-0 left-0 px-2" id="frames-container">
                 <button id="btn-add-frame" class="shrink-0 w-14 h-14 rounded-xl border-2 border-dashed border-slate-600 hover:border-violet-400 hover:bg-violet-500/10 text-slate-400 flex items-center justify-center transition flex-col relative select-none">
                     <svg class="w-6 h-6 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
@@ -131,37 +135,34 @@
     <div id="toast-container" class="fixed top-16 left-1/2 transform -translate-x-1/2 z-50 flex flex-col gap-2 pointer-events-none"></div>
 
 <script>
-    window.onerror = function(msg, url, line) {
-        alert("ОШИБКА: " + msg + "\nСтрока: " + line);
-        return false;
-    };
-
+    // --- ПЕРЕВОДЫ ---
     const translations = {
         ru: {
             title: "Студия Анимации Pro", fps: "FPS:", play: "Пуск", stop: "Стоп", export: "Экспорт",
             brush: "Кисть:", eraser: "Ластик", clear: "Очистить", onion: "Калька",
             frameOf: "Кадр {x} из {y}", hint: "Удержание кадра = Удалить | Удержание [+] = Дублировать",
-            render: "Сборка видео...", saving: "Сохранение файла...", done: "✅ Готово!",
-            err: "❌ Ошибка экспорта", delErr: "Нельзя удалить последний кадр!", deleted: "🗑️ Кадр удален", copied: "📋 Кадр скопирован"
+            render: "Сборка видео...", saving: "Сохранение файла...", done: "✅ Видео сохранено!",
+            err: "❌ Ошибка при экспорте", delErr: "Нельзя удалить последний кадр!", deleted: "🗑️ Кадр удален", copied: "📋 Кадр скопирован", audioLoaded: "🎵 Звук загружен!"
         },
         en: {
             title: "Animation Studio Pro", fps: "FPS:", play: "Play", stop: "Stop", export: "Export",
             brush: "Brush:", eraser: "Eraser", clear: "Clear", onion: "Onion Skin",
             frameOf: "Frame {x} of {y}", hint: "Hold frame = Delete | Hold [+] = Duplicate",
-            render: "Rendering...", saving: "Saving...", done: "✅ Saved!",
-            err: "❌ Error", delErr: "Cannot delete!", deleted: "🗑️ Deleted", copied: "📋 Duplicated"
+            render: "Rendering video...", saving: "Saving file...", done: "✅ Video saved!",
+            err: "❌ Export error", delErr: "Cannot delete the last frame!", deleted: "🗑️ Frame deleted", copied: "📋 Frame duplicated", audioLoaded: "🎵 Audio loaded!"
         },
         az: {
             title: "Animasiya Studiyası Pro", fps: "FPS:", play: "Başlat", stop: "Dayandır", export: "Eksport",
             brush: "Fırça:", eraser: "Pozan", clear: "Təmizlə", onion: "Kalka",
-            frameOf: "Kadr {x} / {y}", hint: "Saxlayın = Sil | [+] Saxlayın = Kopyala",
-            render: "Yığılır...", saving: "Saxlanılır...", done: "✅ Hazırdır!",
-            err: "❌ Xəta", delErr: "Sonuncunu silmək olmaz!", deleted: "🗑️ Silindi", copied: "📋 Kopyalandı"
+            frameOf: "Kadr {x} / {y}", hint: "Kadra basıb saxlayın = Sil | [+] basıb saxlayın = Kopyala",
+            render: "Video yığılır...", saving: "Fayl saxlanılır...", done: "✅ Video Yükləmələrə yazıldı!",
+            err: "❌ Eksport xətası", delErr: "Sonuncu kadrı silmək olmaz!", deleted: "🗑️ Kadr silindi", copied: "📋 Kadr kopyalandı", audioLoaded: "🎵 Audio yükləndi!"
         }
     };
 
     let currentLang = 'ru';
 
+    // --- ПЕРЕМЕННЫЕ ---
     const canvas = document.getElementById('main-canvas');
     const ctx = canvas.getContext('2d', { willReadFrequently: true });
     
@@ -181,10 +182,8 @@
     let isPlaying = false;
     let playInterval = null;
 
-    // СИСТЕМА ОПТИМИЗАЦИИ ОТРИСОВКИ (Google Canvas Style)
-    let canvasRect = null;
-    let drawingPoints = [];
-    let animationFrameId = null;
+    let bgAudio = new Audio();
+    let hasAudio = false;
 
     const framesContainer = document.getElementById('frames-container');
     const btnAddFrame = document.getElementById('btn-add-frame');
@@ -200,19 +199,13 @@
     const btnEraser = document.getElementById('btn-eraser');
     const btnClear = document.getElementById('btn-clear');
 
-    function updateCanvasRect() {
-        canvasRect = canvas.getBoundingClientRect();
-    }
-
-    window.addEventListener('resize', updateCanvasRect);
-    window.addEventListener('scroll', updateCanvasRect);
-    window.addEventListener('DOMContentLoaded', updateCanvasRect);
-
+    // --- ИНИЦИАЛИЗАЦИЯ И ХОЛСТ ---
     function setupContext() {
         ctx.lineCap = 'round';
         ctx.lineJoin = 'round';
         ctx.lineWidth = currentSize;
     }
+    setupContext();
 
     function getEmptyCanvasDataURL() {
         const tempCanvas = document.createElement('canvas');
@@ -227,7 +220,6 @@
     frames.push(getEmptyCanvasDataURL());
     renderFramesList();
     loadFrameToCanvas(0);
-    setTimeout(updateCanvasRect, 100);
 
     function loadFrameToCanvas(index) {
         currentFrameIndex = index;
@@ -252,13 +244,12 @@
         document.getElementById('frame-counter').innerText = t.frameOf.replace('{x}', currentFrameIndex + 1).replace('{y}', frames.length);
         
         document.querySelectorAll('.frame-thumb').forEach((el, idx) => {
-            if(idx === currentFrameIndex) el.classList.add('frame-active');
+            if (idx === currentFrameIndex) el.classList.add('frame-active');
             else el.classList.remove('frame-active');
         });
 
-        const onionSkinToggle = document.getElementById('onion-skin-toggle');
         const onionLayer = document.getElementById('onion-skin-layer');
-        if (onionSkinToggle.checked && currentFrameIndex > 0 && !isPlaying) {
+        if (document.getElementById('onion-skin-toggle').checked && currentFrameIndex > 0 && !isPlaying) {
             onionLayer.src = frames[currentFrameIndex - 1];
             onionLayer.classList.remove('hidden');
         } else {
@@ -266,6 +257,7 @@
         }
     }
 
+    // --- ЯЗЫК ---
     function applyLanguage(lang) {
         currentLang = lang;
         const t = translations[lang];
@@ -280,8 +272,7 @@
         playText.innerText = isPlaying ? t.stop : t.play;
         
         ['ru', 'en', 'az'].forEach(l => {
-            const btn = document.getElementById(`btn-lang-${l}`);
-            btn.className = l === lang ? "px-2 py-1 rounded-lg bg-violet-600 text-white transition" : "px-2 py-1 rounded-lg text-slate-400 transition";
+            document.getElementById(`btn-lang-${l}`).className = l === lang ? "px-2 py-1 rounded-lg bg-violet-600 text-white transition" : "px-2 py-1 rounded-lg text-slate-400 transition";
         });
         updateUI();
     }
@@ -291,61 +282,67 @@
     document.getElementById('btn-lang-az').addEventListener('click', () => applyLanguage('az'));
     document.getElementById('onion-skin-toggle').addEventListener('change', updateUI);
 
+    // --- АУДИО ---
+    document.getElementById('btn-audio').addEventListener('click', () => document.getElementById('audio-input').click());
+    document.getElementById('audio-input').addEventListener('change', (e) => {
+        if(e.target.files[0]) {
+            bgAudio.src = URL.createObjectURL(e.target.files[0]);
+            hasAudio = true;
+            showToast(translations[currentLang].audioLoaded);
+        }
+    });
+
+    // --- УПРАВЛЕНИЕ КАДРАМИ ---
     function setupFrameLongPress(element, index) {
         let pressTimer;
-        let startX, startY;
-        let isMoving = false;
+        let isScrolling = false;
 
         const startHold = (e) => {
-            isMoving = false;
-            startX = e.touches ? e.touches[0].clientX : e.clientX;
-            startY = e.touches ? e.touches[0].clientY : e.clientY;
+            if (e.type === 'touchstart') e.preventDefault(); // Блокируем двойной клик от мышки
+            isScrolling = false;
             pressTimer = setTimeout(() => {
-                if (!isMoving) {
+                if (!isScrolling) {
                     element.classList.add('deleting');
                     setTimeout(() => deleteFrame(index), 300);
                 }
             }, 600);
         };
 
-        const moveHold = (e) => {
-            if (!startX) return;
-            let currentX = e.touches ? e.touches[0].clientX : e.clientX;
-            let currentY = e.touches ? e.touches[0].clientY : e.clientY;
-            if (Math.abs(currentX - startX) > 10 || Math.abs(currentY - startY) > 10) {
-                isMoving = true;
-                cancelHold();
-            }
-        };
-
         const cancelHold = () => { clearTimeout(pressTimer); element.classList.remove('deleting'); };
+        const setScrolling = () => { isScrolling = true; cancelHold(); };
 
-        element.addEventListener('touchstart', startHold, {passive: true});
-        element.addEventListener('touchmove', moveHold, {passive: true});
+        element.addEventListener('touchstart', startHold, {passive: false});
+        element.addEventListener('touchmove', setScrolling, {passive: true});
         element.addEventListener('touchend', cancelHold);
-        element.addEventListener('touchcancel', cancelHold);
+        
         element.addEventListener('mousedown', startHold);
-        element.addEventListener('mousemove', moveHold);
+        element.addEventListener('mousemove', setScrolling);
         element.addEventListener('mouseup', cancelHold);
         element.addEventListener('mouseleave', cancelHold);
     }
 
     function renderFramesList() {
         framesContainer.querySelectorAll('.frame-thumb-container').forEach(t => t.remove());
+
         frames.forEach((frameData, index) => {
             const container = document.createElement('div');
             container.className = 'frame-thumb-container shrink-0 cursor-pointer relative group w-14 h-14';
+            
             const thumb = document.createElement('div');
             thumb.className = `frame-thumb w-full h-full bg-white rounded-xl border-2 border-slate-700 overflow-hidden transition-all duration-200 checkerboard`;
-            thumb.onclick = () => {
+            
+            // Нажатие на кадр (переключение)
+            thumb.addEventListener('click', () => {
                 if (isPlaying) togglePlay();
                 saveCurrentFrame();
                 loadFrameToCanvas(index);
-            };
+            });
+
             const img = document.createElement('img');
             img.id = `thumb-img-${index}`;
             img.src = frameData;
             img.className = 'w-full h-full object-contain pointer-events-none';
+            
             const numBadge = document.createElement('div');
             numBadge.className = 'absolute top-1 left-1 bg-black/70 text-white text-[9px] px-1 rounded font-mono pointer-events-none';
             numBadge.innerText = index + 1;
@@ -353,6 +350,7 @@
             thumb.appendChild(img);
             container.appendChild(thumb);
             container.appendChild(numBadge);
+            
             setupFrameLongPress(container, index);
             framesContainer.insertBefore(container, btnAddFrame);
         });
@@ -364,6 +362,7 @@
         frames.splice(index, 1);
         if (currentFrameIndex >= frames.length) currentFrameIndex = frames.length - 1;
         else if (currentFrameIndex > index) currentFrameIndex--;
+        
         renderFramesList();
         loadFrameToCanvas(currentFrameIndex);
         showToast(translations[currentLang].deleted);
@@ -391,11 +390,4 @@
         setTimeout(() => { document.getElementById('timeline-scroll').scrollTo({ left: 9999, behavior: 'smooth' }); }, 50);
     }
 
-    let addPressTimer;
-    let holdProgressInterval;
-    let isLongPressAdd = false;
-    const holdProgressBar = document.getElementById('hold-progress');
-
-    const startAddPress = (e) => {
-        isLongPressAdd = false;
- 
+    // ЛОГИКА ДОБАВЛЕНИЯ К
