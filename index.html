@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Animation Canvas</title>
+    <style>
+        :root {
+            --bg-color: #2c2c2c;
+            --tool-bg: #3a3a3a;
+            --accent: #4CAF50;
+            --text: #ffffff;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
+        
+        body {
+            background-color: var(--bg-color);
+            color: var(--text);
+            font-family: sans-serif;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* Верхнее меню */
+        #top-bar {
+            display: flex;
+            gap: 8px;
+            padding: 8px;
+            background-color: var(--tool-bg);
+            align-items: center;
+            overflow-x: auto;
+            white-space: nowrap;
+            z-index: 10;
+            transition: all 0.3s ease;
+        }
+
+        button, select, input[type="color"] {
+            background: #555;
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 14px;
+            cursor: pointer;
+            outline: none;
+        }
+
+        button:active, button.active { background: var(--accent); }
+        
+        input[type="range"] { width: 80px; }
+        input[type="color"] { padding: 0; width: 35px; height: 35px; border-radius: 50%; overflow: hidden; }
+
+        /* Холст */
+        #canvas-container {
+            flex: 1;
+            position: relative;
+            background: #ffffff;
+            touch-action: none; /* Запрещает скролл экрана при рисовании */
+            width: 100%;
+        }
+
+        canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+
+        /* Нижнее меню (кадры) */
+        #bottom-bar {
+            display: flex;
+            gap: 5px;
+            padding: 10px;
+            background-color: var(--tool-bg);
+            align-items: center;
+            overflow-x: auto;
+            z-index: 10;
+        }
+
+        .frame-btn {
+            background: #666;
+            padding: 8px 16px;
+            border-radius: 4px;
+            min-width: 40px;
+            text-align: center;
+            transition: all 0.2s;
+        }
+
+        .frame-btn.current { background: var(--accent); font-weight: bold; }
+
+        /* ПОЛНОЭКРАННЫЙ РЕЖИМ (CSS Логика) */
+        body.is-fullscreen #top-bar > *:not(#btn-fullscreen) {
+            display: none; /* Прячем всё, кроме кнопки выхода */
+        }
+        
+        body.is-fullscreen #top-bar {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: transparent;
+            padding: 0;
+            box-shadow: none;
+        }
+
+        body.is-fullscreen #btn-fullscreen {
+            background: rgba(0, 0, 0, 0.5);
+            border: 2px solid white;
+        }
+
+        body.is-fullscreen #bottom-bar {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background: rgba(0, 0, 0, 0.4);
+            padding: 5px;
+        }
+
+        /* Кадры становятся маленькими числами */
+        body.is-fullscreen .frame-btn {
+            padding: 4px 8px;
+            font-size: 12px;
+            min-width: 25px;
+            border-radius: 50px;
+        }
+        
+        body.is-fullscreen #btn-add-frame {
+            padding: 4px 10px;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Скрытый инпут для загрузки из галереи (связан с Java кодом) -->
+    <input type="file" id="gallery-upload" accept="image/*" style="display: none;">
+
+    <div id="top-bar">
+        <!-- Языки: RU, EN, AZ -->
+        <select id="lang-select" onchange="changeLang(this.value)">
+            <option value="ru">RU</option>
+            <option value="en">EN</option>
+            <option value="az">AZ</option>
+        </select>
+
+        <!-- Загрузка из Галереи -->
+        <button id="btn-gallery" onclick="document.getElementById('gallery-upload').click()">📁</button>
+        <!-- Сохранение -->
+        <button id="btn-save" onclick="saveToGallery()">💾</button>
+
+        <input type="color" id="color-picker" value="#000000">
+        <input type="range" id="size-slider" min="1" max="50" value="5">
+        
+        <button id="btn-brush" class="active" onclick="setTool('brush')">🖌️ <span class="lang-brush">Кисть</span></button>
+        <button id="btn-eraser" onclick="setTool('eraser')">🧼 <span class="lang-eraser">Ластик</span></button>
+        <button id="btn-fill-eraser" onclick="clearCanvas()">🗑️ <span class="lang-fill">Залив</span></button>
+        <button id="btn-onion" onclick="toggleOnionSkin()">🧅 <span class="lang-onion">Шелуха</span></button>
+        
+        <div style="flex-grow: 1;"></div> <!-- Распорка для сдвига кнопки -->
+        
+        <button id="btn-fullscreen" onclick="toggleFullscreen()">🔲 <span class="lang-fs">Полный экран</span></button>
+    </div>
+
+    <div id="canvas-container">
+        <!-- Холст для луковой шелухи (предыдущий кадр) -->
+        <canvas id="onion-canvas"></canvas>
+        <!-- Основной холст -->
+        <canvas id="main-canvas"></canvas>
+    </div>
+
+    <div id="bottom-bar">
+        <button id="btn-add-frame" onclick="addFrame()">+ <span class="lang-add">Кадр</span></button>
+        <div id="frames-list" style="display: flex; gap: 5px;"></div>
+    </div>
+
+    <script>
+        // --- ЛОКАЛИЗАЦИЯ ---
+        const dict = {
+            'ru': { brush: "Кисть", eraser: "Ластик", fill: "Залив", onion: "Шелуха", fs: "На весь", add: "Кадр" },
+            'en': { brush: "Brush", eraser: "Eraser", fill: "Clear", onion: "Onion", fs: "Full Scr", add: "Frame" },
+            'az': { brush: "Fırça", eraser: "Pozan", fill: "Təmizlə", onion: "Soğan", fs: "Tam Ekran", add: "Kadr" }
+        };
+
+        function changeLang(lang) {
+            document.querySelector('.lang-brush').innerText = dict[lang].brush;
+            document.querySelector('.lang-eraser').innerText = dict[lang].eraser;
+            document.querySelector('.lang-fill').innerText = dict[lang].fill;
+            document.querySelector('.lang-onion').innerText = dict[lang].onion;
+            document.querySelector('.lang-fs').innerText = dict[lang].fs;
+            document.querySelector('.lang-add').innerText = dict[lang].add;
+        }
+
+        // --- ИНИЦИАЛИЗАЦИЯ ХОЛСТА ---
+        const canvas = document.getElementById('main-canvas');
+        const ctx = canvas.getContext('2d', { willReadFrequently: true });
+        const onionCanvas = document.getElementById('onion-canvas');
+        const onionCtx = onionCanvas.getContext('2d');
+        const container = document.getElementById('canvas-container');
+
+        let width = 0, height = 0;
+        let isDrawing = false;
+        let tool = 'brush'; // 'brush' или 'eraser'
+        let onionEnabled = false;
+        
+        // Массив данных кадров (храним DataURL)
+        let frames = []; 
+        let currentFrameIndex = 0;
+
+        function resizeCanvas() {
+            width = container.clientWidth;
+            height = container.clientHeight;
+            
+            // Сохраняем текущий рисунок перед ресайзом
+            let tempData = null;
+            if(frames[currentFrameIndex]) {
+                tempData = frames[currentFrameIndex];
+            }
+
+            canvas.width = width; canvas.height = height;
+            onionCanvas.width = width; onionCanvas.height = height;
+            
+            ctx.lineCap = 'round';
+            ctx.lineJoin = 'round';
+
+            // Восстанавливаем рисунок
+            if(tempData) loadFrameData(tempData);
+        }
+        window.addEventListener('resize', resizeCanvas);
+        
+        // --- ИНСТРУМЕНТЫ ---
+        function setTool(t) {
+            tool = t;
+            document.getElementById('btn-brush').classList.toggle('active', t === 'brush');
+            document.getElementById('btn-eraser').classList.toggle('active', t === 'eraser');
+        }
+
+        function clearCanvas() {
+            ctx.clearRect(0, 0, width, height);
+            saveCurrentFrameToMemory();
+        }
+
+        function toggleOnionSkin() {
+            onionEnabled = !onionEnabled;
+            document.getElementById('btn-onion').classList.toggle('active', onionEnabled);
+            renderOnionSkin();
+        }
+
+        function toggleFullscreen() {
+            document.body.classList.toggle('is-fullscreen');
+            setTimeout(resizeCanvas, 300); // Пересчет холста после анимации CSS
+        }
+
+        // --- УПРАВЛЕНИЕ КАДРАМИ ---
+        function addFrame() {
+            // Сохраняем текущий
+            saveCurrentFrameToMemory();
+            
+            // Создаем новый пустой
+            frames.push(null);
+            currentFrameIndex = frames.length - 1;
+            
+            ctx.clearRect(0, 0, width, height);
+            updateFramesUI();
+            renderOnionSkin();
+        }
+
+        function selectFrame(index) {
+            saveCurrentFrameToMemory();
+            currentFrameIndex = index;
+            ctx.clearRect(0, 0, width, height);
+            
+            if (frames[index]) {
+                loadFrameData(frames[index]);
+            }
+            updateFramesUI();
+            renderOnionSkin();
+        }
+
+        function saveCurrentFrameToMemory() {
+            frames[currentFrameIndex] = canvas.toDataURL();
+        }
+
+        function loadFrameData(dataUrl) {
+            const img = new Image();
+            img.onload = () => { ctx.drawImage(img, 0, 0, width, height); };
+            img.src = dataUrl;
+        }
+
+        function renderOnionSkin() {
+            onionCtx.clearRect(0, 0, width, height);
+            if (onionEnabled && currentFrameIndex > 0 && frames[currentFrameIndex - 1]) {
+                const img = new Image();
+                img.onload = () => {
+                    onionCtx.globalAlpha = 0.3; // Прозрачность шелухи
+                    onionCtx.drawImage(img, 0, 0, width, height);
+                    onionCtx.globalAlpha = 1.0;
+                };
+                img.src = frames[currentFrameIndex - 1];
+            }
+        }
+
+        function updateFramesUI() {
+            const list = document.getElementById('frames-list');
+            list.innerHTML = '';
+            frames.forEach((_, i) => {
+                const btn = document.createElement('button');
+                btn.className = `frame-btn ${i === currentFrameIndex ? 'current' : ''}`;
+                btn.innerText = i + 1; // Только цифры
+                btn.onclick = () => selectFrame(i);
+                list.appendChild(btn);
+            });
+        }
+
+        // --- РИСОВАНИЕ (Поддержка Touch и Мыши) ---
+        function startPosition(e) {
+            isDrawing = true;
+            draw(e);
+        }
+
+        function endPosition() {
+            isDrawing = false;
+            ctx.beginPath();
+            saveCurrentFrameToMemory();
+        }
+
+        function draw(e) {
+            if (!isDrawing) return;
+            e.preventDefault(); // Останавливает прокрутку
+
+            const rect = canvas.getBoundingClientRect();
+            // Поддержка касаний и мыши
+            const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+            const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+            
+            const x = clientX - rect.left;
+            const y = clientY - rect.top;
+
+            ctx.lineWidth = document.getElementById('size-slider').value;
+            
+            if (tool === 'brush') {
+                ctx.globalCompositeOperation = 'source-over';
+                ctx.strokeStyle = document.getElementById('color-picker').value;
+            } else if (tool === 'eraser') {
+                ctx.globalCompositeOperation = 'destination-out';
+                ctx.strokeStyle = 'rgba(0,0,0,1)';
+            }
+
+            ctx.lineTo(x, y);
+            ctx.stroke();
+            ctx.beginPath();
+            ctx.moveTo(x, y);
+        }
+
+        canvas.addEventListener('pointerdown', startPosition);
+        canvas.addEventListener('pointerup', endPosition);
+        canvas.addEventListener('pointermove', draw);
+        // Защита от сброса касания при выходе за границы
+        canvas.addEventListener('pointerleave', endPosition); 
+
+        // --- ИМПОРТ / ЭКСПОРТ ДЛЯ ГАЛЕРЕИ ---
+        
+        // Загрузка файла (отрабатывает совместно с onActivityResult в Java)
+        document.getElementById('gallery-upload').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                const img = new Image();
+                img.onload = function() {
+                    // Растягиваем загруженную картинку по холсту
+                    ctx.drawImage(img, 0, 0, width, height);
+                    saveCurrentFrameToMemory();
+                }
+                img.src = event.target.result;
+            }
+            reader.readAsDataURL(file);
+        });
+
+        // Скачивание текущего кадра на устройство
+        function saveToGallery() {
+            const link = document.createElement('a');
+            link.download = `frame_${currentFrameIndex + 1}.png`;
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+        }
+
+        // Запуск
+        window.onload = () => {
+            resizeCanvas();
+            frames.push(null); // Создаем первый кадр
+            updateFramesUI();
+            changeLang('ru'); // Русский по умолчанию
+        };
+    </script>
+</body>
+</html>
