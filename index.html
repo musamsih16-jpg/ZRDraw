@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>ZRDraw - Minimal Studio</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body, html {
+            overscroll-behavior-y: contain;
+            -webkit-tap-highlight-color: transparent;
+            margin: 0; padding: 0;
+            height: 100%; overflow: hidden;
+            touch-action: none;
+        }
+        
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+        .glass-panel {
+            background: rgba(30, 41, 59, 0.95);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
+        }
+
+        .glass-button {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            transition: all 0.2s ease;
+        }
+        .glass-button:active { background: rgba(255, 255, 255, 0.2); transform: scale(0.95); }
+        .active-tool { background: rgba(139, 92, 246, 0.8) !important; border-color: rgba(139, 92, 246, 1) !important; }
+
+        .frame-active {
+            border-color: #a78bfa !important;
+            box-shadow: 0 0 0 4px rgba(167, 139, 250, 0.4);
+            transform: translateY(-2px);
+        }
+
+        .static-bg { background-color: #0f172a; }
+
+        .checkerboard {
+            background-image: 
+                linear-gradient(45deg, rgba(0,0,0,0.1) 25%, transparent 25%), 
+                linear-gradient(-45deg, rgba(0,0,0,0.1) 25%, transparent 25%), 
+                linear-gradient(45deg, transparent 75%, rgba(0,0,0,0.1) 75%), 
+                linear-gradient(-45deg, transparent 75%, rgba(0,0,0,0.1) 75%);
+            background-size: 20px 20px;
+            background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
+        }
+    </style>
+</head>
+<body class="static-bg text-slate-100 flex flex-col font-sans">
+
+    <header class="glass-panel m-2 rounded-xl p-2 flex flex-wrap items-center justify-between gap-2 z-20 shrink-0">
+        <div class="flex flex-wrap items-center gap-1">
+            <button id="tool-brush" class="glass-button active-tool px-3 py-1.5 rounded-lg text-xs font-bold">Кисть</button>
+            <button id="tool-eraser" class="glass-button px-3 py-1.5 rounded-lg text-xs font-bold">Ластик</button>
+            <button id="tool-fill" class="glass-button px-3 py-1.5 rounded-lg text-xs font-bold">Заливка</button>
+            <button id="tool-eraser-fill" class="glass-button px-3 py-1.5 rounded-lg text-xs font-bold text-pink-300">🪄 Ластик-заливка</button>
+            <button id="btn-onion" class="glass-button px-3 py-1.5 rounded-lg text-xs font-bold text-amber-300">🧅 Луковая шелуха</button>
+            <button id="btn-clear" class="glass-button text-red-400 px-3 py-1.5 rounded-lg text-xs font-bold">Очистить</button>
+            <button id="btn-undo" class="glass-button px-2.5 py-1.5 rounded-lg text-xs font-bold" style="opacity: 0.5;">↩</button>
+            <button id="btn-redo" class="glass-button px-2.5 py-1.5 rounded-lg text-xs font-bold" style="opacity: 0.5;">↪</button>
+        </div>
+
+        <div class="flex items-center gap-1.5">
+            <button id="btn-fullscreen" class="glass-button px-3 py-1.5 rounded-lg text-xs font-bold text-cyan-300">🖥️ Полный экран</button>
+            <button id="btn-play" class="bg-violet-600 hover:bg-violet-500 text-white px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center shadow-md">
+                <span id="play-icon">▶</span>
+            </button>
+            <button id="btn-export" class="bg-emerald-500 hover:bg-emerald-400 text-white px-3 py-1.5 rounded-lg text-xs font-bold transition shadow-md flex items-center gap-1">
+                📥 Экспорт
+            </button>
+        </div>
+    </header>
+
+    <main class="flex-1 w-full p-2 relative flex items-center justify-center overflow-hidden">
+        <div id="canvas-wrapper" class="relative shadow-[0_0_40px_rgba(0,0,0,0.5)] flex items-center justify-center border border-white/10" style="max-width: 100%; max-height: 100%; aspect-ratio: 1000 / 1000; width: 1000px; height: 1000px;">
+            <div id="canvas-bg" class="absolute inset-0 w-full h-full checkerboard" style="background-color: #1e1e1e;"></div>
+            <img id="onion-skin-layer" class="absolute w-full h-full object-contain opacity-30 pointer-events-none hidden">
+            <canvas id="main-canvas" class="relative z-10 touch-none cursor-crosshair w-full h-full object-contain"></canvas>
+            
+            <div id="status-overlay" class="absolute inset-0 bg-slate-900/90 hidden flex-col items-center justify-center z-50">
+                <div class="w-12 h-12 border-4 border-violet-500 border-t-transparent rounded-full animate-spin mb-4"></div>
+                <span id="status-text" class="text-white font-bold tracking-wide text-sm">Сборка видео...</span>
+            </div>
+        </div>
+    </main>
+
+    <footer id="footer-timeline" class="glass-panel mx-2 mb-2 rounded-xl p-2 shrink-0 flex flex-col z-20" style="height: 90px;">
+        <div class="flex justify-between items-center mb-1 shrink-0 px-1 border-b border-white/10 pb-1">
+            <span class="text-[11px] font-bold text-white/90" id="frame-counter">Кадр 1 / 1</span>
+            <span class="text-[9px] text-white/50">Удержание кадра: Удалить | Удержание [+]: Копия</span>
+        </div>
+        
+        <div class="flex-1 overflow-auto relative rounded-lg bg-black/20 no-scrollbar" id="timeline-scroll">
+            <div class="relative min-w-max p-1" id="timeline-content">
+                <div class="flex gap-2 items-center h-12 relative" id="frames-container">
+                    <button id="btn-add-frame" class="shrink-0 w-10 h-10 rounded-xl glass-button text-white/50 hover:text-white hover:bg-white/20 flex items-center justify-center transition flex-col relative select-none touch-none">
+                        <svg class="w-4 h-4 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                    </button>
+                    <button id="btn-del-frame" class="shrink-0 w-10 h-10 rounded-xl glass-button text-red-400 hover:bg-red-500/20 flex items-center justify-center transition flex-col relative font-bold text-sm">
+                        🗑️
+                    </button>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <div id="toast-container" class="fixed top-20 left-1/2 transform -translate-x-1/2 z-50 flex flex-col gap-2 pointer-events-none"></div>
+
+<script>
+    const canvas = document.getElementById('main-canvas');
+    const ctx = canvas.getContext('2d', { willReadFrequently: true });
+    const wrapper = document.getElementById('canvas-wrapper');
+    
+    let CANVAS_WIDTH = 1000;
+    let CANVAS_HEIGHT = 1000;
+    canvas.width = CANVAS_WIDTH;
+    canvas.height = CANVAS_HEIGHT;
+
+    let frames = [];
+    let currentFrameIndex = 0;
+    let isDrawing = false;
+    let activeTool = 'brush';
+    let brushColor = '#ffffff';
+    let bgColor = '#1e1e1e';
+    let brushSize = 5;
+    let isOnionSkin = false;
+    let isFullscreenMode = false;
+
+    let undoStack = [];
+    let redoStack = [];
+    const MAX_HISTORY = 5; 
+
+    let isPlaying = false;
+    let renderAnimationFrame = null;
+
+    const UI = {
+        framesContainer: document.getElementById('frames-container'),
+        btnAddFrame: document.getElementById('btn-add-frame'),
+        btnDelFrame: document.getElementById('btn-del-frame'),
+        status: document.getElementById('status-overlay'),
+        statusText: document.getElementById('status-text'),
+        play: document.getElementById('btn-play'),
+        playIcon: document.getElementById('play-icon'),
+        tools: { 
+            brush: document.getElementById('tool-brush'), 
+            eraser: document.getElementById('tool-eraser'), 
+            fill: document.getElementById('tool-fill'),
+            'eraser-fill': document.getElementById('tool-eraser-fill')
+        },
+        btnUndo: document.getElementById('btn-undo'),
+        btnRedo: document.getElementById('btn-redo'),
+        clear: document.getElementById('btn-clear'),
+        onionBtn: document.getElementById('btn-onion'),
+        onionLayer: document.getElementById('onion-skin-layer'),
+        canvasBg: document.getElementById('canvas-bg'),
+        timelineScroll: document.getElementById('timeline-scroll'),
+        footerTimeline: document.getElementById('footer-timeline'),
+        btnFullscreen: document.getElementById('btn-fullscreen')
+    };
+
+    function applyContext() {
+        ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+    }
+
+    // Режим Полного Экрана
+    UI.btnFullscreen.onclick = () => {
+        isFullscreenMode = !isFullscreenMode;
+        if (isFullscreenMode) {
+            UI.footerTimeline.classList.add('hidden');
+            UI.btnFullscreen.innerText = "📱 Обычный экран";
+            UI.btnFullscreen.classList.add('bg-cyan-600/50');
+        } else {
+            UI.footerTimeline.classList.remove('hidden');
+            UI.btnFullscreen.innerText = "🖥️ Полный экран";
+            UI.btnFullscreen.classList.remove('bg-cyan-600/50');
+        }
+    };
+
+    function getEmptyFrame() {
+        const temp = document.createElement('canvas');
+        temp.width = CANVAS_WIDTH; temp.height = CANVAS_HEIGHT;
+        return temp.toDataURL('image/png');
+    }
+
+    frames.push(getEmptyFrame());
+    renderFrames();
+    loadFrameToCanvas(0);
+
+    function updateUndoRedoUI() {
+        UI.btnUndo.style.opacity = undoStack.length > 0 ? '1' : '0.5';
+        UI.btnRedo.style.opacity = redoStack.length > 0 ? '1' : '0.5';
+    }
+
+    function saveState() {
+        undoStack.push(canvas.toDataURL('image/png'));
+        if (undoStack.length > MAX_HISTORY) undoStack.shift();
+        redoStack = []; updateUndoRedoUI();
+    }
+
+    UI.btnUndo.onclick = () => {
+        if (undoStack.length === 0 || isPlaying) return;
+        redoStack.push(canvas.toDataURL('image/png'));
+        restoreStateToCanvas(undoStack.pop()); updateUndoRedoUI();
+    };
+
+    UI.btnRedo.onclick = () => {
+        if (redoStack.length === 0 || isPlaying) return;
+        undoStack.push(canvas.toDataURL('image/png'));
+        restoreStateToCanvas(redoStack.pop()); updateUndoRedoUI();
+    };
+
+    function restoreStateToCanvas(dataUrl) {
+        const img = new Image();
+        img.onload = () => {
+            ctx.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+            ctx.globalCompositeOperation = 'source-over';
+            ctx.drawImage(img, 0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+            frames[currentFrameIndex] = canvas.toDataURL('image/png');
+            const t = document.getElementById(`thumb-${currentFrameIndex}`);
+            if(t) t.src = frames[currentFrameIndex];
+        };
+        img.src = dataUrl;
+    }
+
+    function setTool(toolName) {
+        activeTool = toolName;
+        Object.values(UI.tools).forEach(btn => btn.classList.remove('active-tool'));
+        UI.tools[toolName].classList.add('active-tool');
+    }
+    UI.tools.brush.onclick = () => setTool('brush');
+    UI.tools.eraser.onclick = () => setTool('eraser');
+    UI.tools.fill.onclick = () => setTool('fill');
+    UI.tools['eraser-fill'].onclick = () => setTool('eraser-fill');
+
+    UI.clear.onclick = () => {
+        saveState(); ctx.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT); saveFrame();
+    };
+
+    UI.onionBtn.onclick = () => {
+        isOnionSkin = !isOnionSkin;
+        UI.onionBtn.classList.toggle('bg-white/30', isOnionSkin);
+        updateUI();
+    };
+
+    function hexToRgba(hex) {
+        let c = hex.substring(1).split('');
+        if(c.length === 3) c = [c[0], c[0], c[1], c[1], c[2], c[2]];
+        c = '0x' + c.join('');
+        return [(c>>16)&255, (c>>8)&255, c&255, 255];
+    }
+
+    function floodFill(startX, startY, fillHex, isErase = false) {
+        const w = CANVAS_WIDTH; const h = CANVAS_HEIGHT;
+        const imgData = ctx.getImageData(0, 0, w, h);
+        const data = imgData.data;
+        const fillRgba = isErase ? [0, 0, 0, 0] : hexToRgba(fillHex);
+        
+        const startPos = (startY * w + startX) * 4;
+        const startR = data[startPos]; const startG = data[startPos+1]; 
+        const startB = data[startPos+2]; const startA = data[startPos+3];
+
+        if (!isErase && startR === fillRgba[0] && startG === fillRgba[1] && startB === fillRgba[2] && startA === fillRgba[3]) return;
+        if (isErase && startA === 0) return;
+
+        const matchColor = (idx) => {
+            if (startA === 0) return data[idx+3] < 20; 
+            return Math.abs(data[idx] - startR) <= 32 && Math.abs(data[idx+1] - startG) <= 32 && Math.abs(data[idx+2] - startB) <= 32 && Math.abs(data[idx+3] - startA) <= 32;
+        };
+
+        const setColor = (idx) => {
+            if (isErase) {
+                data[idx] = 0; data[idx+1] = 0; data[idx+2] = 0; data[idx+3] = 0;
+            } else {
+                data[idx] = fillRgba[0]; data[idx+1] = fillRgba[1]; data[idx+2] = fillRgba[2]; data[idx+3] = 255;
+            }
+        };
+
+        const stack = [[startX, startY]];
+        while (stack.length > 0) {
+            let [x, y] = stack.pop();
+            let idx = (y * w + x) * 4;
+            while (y >= 0 && matchColor(idx)) { y--; idx -= w * 4; }
+            idx += w * 4; y++;
+            let reachLeft = false; let reachRight = false;
+            while (y < h && matchColor(idx)) {
+                setColor(idx);
+                if (x > 0) {
+                    if (matchColor(idx - 4)) { if (!reachLeft) { stack.push([x - 1, y]); reachLeft = true; } } else if (reachLeft) { reachLeft = false; }
+                }
+                if (x < w - 1) {
+                    if (matchColor(idx + 4)) { if (!reachRight) { stack.push([x + 1, y]); reachRight = true; } } else if (reachRight) { reachRight = false; }
+                }
+                y++; idx += w * 4;
+            }
+        }
+        ctx.putImageData(imgData, 0, 0);
+    }
+
+    function getCoords(e) {
+        const rect = canvas.getBoundingClientRect();
+        const scale = Math.min(rect.width / CANVAS_WIDTH, rect.height / CANVAS_HEIGHT);
+        const renderedWidth = CANVAS_WIDTH * scale;
+        const renderedHeight = CANVAS_HEIGHT * scale;
+        const offsetX = (rect.width - renderedWidth) / 2;
+        const offsetY = (rect.height - renderedHeight) / 2;
+
+        let cx = e.clientX, cy = e.clientY;
+        if (e.touches && e.touches.length > 0) { 
+            cx = e.touches[0].clientX; cy = e.touches[0].clientY; 
+        }
+        return { 
+            x: Math.floor((cx - rect.left - offsetX) / scale), 
+            y: Math.floor((cy - rect.top - offsetY) / scale) 
+        };
+    }
+
+    const startDraw = (e) => {
+        if (isPlaying) return;
+        const coords = getCoords(e);
+        isDrawing = true;
+
+        if (activeTool === 'fill' || activeTool === 'eraser-fill') {
+            saveState(); floodFill(coords.x, coords.y, brushColor, activeTool === 'eraser-fill');
+            saveFrame(); isDrawing = false; return;
+        }
+
+        saveState(); applyContext();
+        ctx.lineWidth = brushSize;
+        ctx.globalCompositeOperation = activeTool === 'eraser' ? 'destination-out' : 'source-over';
+        ctx.strokeStyle = activeTool === 'eraser' ? 'rgba(0,0,0,1)' : brushColor;
+        ctx.beginPath(); ctx.moveTo(coords.x, coords.y); ctx.lineTo(coords.x, coords.y); ctx.stroke();
+    };
+
+    const drawLine = (e) => {
+        if (!isDrawing || activeTool === 'fill' || activeTool === 'eraser-fill') return;
+        const coords = getCoords(e);
+        ctx.lineTo(coords.x, coords.y); ctx.stroke();
+    };
+
+    const stopDraw = () => {
+        if (isDrawing) { isDrawing = false; if (activeTool !== 'fill' && activeTool !== 'eraser-fill') { saveFrame(); } }
+    };
+
+    canvas.addEventListener('pointerdown', startDraw);
+    canvas.addEventListener('pointermove', drawLine);
+    window.addEventListener('pointerup', stopDraw);
+    window.addEventListener('pointercancel', stopDraw);
+
+    function saveFrame() {
+        frames[currentFrameIndex] = canvas.toDataURL('image/png');
+        const t = document.getElementById(`thumb-${currentFrameIndex}`);
+        if(t) t.src = frames[currentFrameIndex];
+    }
+
+    function loadFrameToCanvas(index) {
+        if (index >= frames.length) index = frames.length - 1;
+        currentFrameIndex = index;
+        if (!isPlaying) { undoStack = []; redoStack = []; updateUndoRedoUI(); }
+
+        const img = new Image();
+        img.onload = () => {
+            ctx.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+            ctx.globalCompositeOperation = 'source-over';
+            ctx.drawImage(img, 0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+            updateUI();
+        };
+        img.src = frames[index];
+    }
+
+    function updateUI() {
+        document.getElementById('frame-counter').innerText = `Кадр ${currentFrameIndex + 1} / ${frames.length}`;
+        document.querySelectorAll('.frame-thumb-container').forEach((el, idx) => el.children[0].classList.toggle('frame-active', idx === currentFrameIndex));
+
+        if (isOnionSkin && currentFrameIndex > 0 && !isPlaying) {
+            UI.onionLayer.src = frames[currentFrameIndex - 1]; UI.onionLayer.classList.remove('hidden');
+        } else {
+            UI.onionLayer.classList.add('hidden');
+        }
+    }
+
+    function deleteFrameByIndex(i) {
+        if(frames.length > 1) {
+            frames.splice(i, 1);
+            if(currentFrameIndex >= frames.length) currentFrameIndex = frames.length - 1;
+            else if(currentFrameIndex > i) currentFrameIndex--;
+            renderFrames(); loadFrameToCanvas(currentFrameIndex); showToast("🗑️ Удалено");
+        } else { showToast("Последний кадр!"); }
+    }
+
+    // Кнопка быстрого удаления активного кадра
+    UI.btnDelFrame.onclick = () => {
+        if (isPlaying) togglePlay();
+        deleteFrameByIndex(currentFrameIndex);
+    };
+
+    function renderFrames() {
+        UI.framesContainer.querySelectorAll('.frame-thumb-container').forEach(e => e.remove());
+
+        frames.forEach((fData, i) => {
+            const div = document.createElement('div');
+            div.className = 'frame-thumb-container shrink-0 cursor-pointer relative w-10 h-10 touch-none';
+            div.oncontextmenu = () => false; 
+            
+            const thumb = document.createElement('div');
+            thumb.className = `w-full h-full bg-white rounded-lg border-2 border-white/20 overflow-hidden transition-all checkerboard ${i===currentFrameIndex?'frame-active':''}`;
+            const img = document.createElement('img');
+            img.id = `thumb-${i}`; img.src = fData; img.className = 'w-full h-full object-contain pointer-events-none';
+            const num = document.createElement('div');
+            num.className = 'absolute top-0.5 left-0.5 bg-black/60 text-white text-[8px] px-1 rounded font-bold pointer-events-none';
+            num.innerText = i + 1;
+
+            thumb.appendChild(img); div.appendChild(thumb); div.appendChild(num);
+
+            let pressT; let isLongPress = false;
+            div.addEventListener('pointerdown', (e) => {
+                e.preventDefault(); isLongPress = false;
+                pressT = setTimeout(() => {
+                    isLongPress = true;
+                    deleteFrameByIndex(i);
+                }, 600);
+            });
+
+            const clearPress = (e) => {
+                clearTimeout(pressT);
+                if (!isLongPress && e.type === 'pointerup') {
+                    if(isPlaying) togglePlay();
+                    saveFrame(); loadFrameToCanvas(i);
+                }
+            };
+
+            div.addEventListener('pointerup', clearPress);
+            div.addEventListener('pointerleave', () => clearTimeout(pressT));
+            div.addEventListener('pointercancel', () => clearTimeout(pressT));
+            UI.framesContainer.insertBefore(div, UI.btnAddFrame);
+        });
+    }
+
+    let addT; let isCopied = false;
+    UI.btnAddFrame.oncontextmenu = () => false;
+    UI.btnAddFrame.addEventListener('pointerdown', (e) => {
+        e.preventDefault(); isCopied = false;
+        addT = setTimeout(() => {
+            isCopied = true; saveFrame(); frames.push(frames[currentFrameIndex]); currentFrameIndex = frames.length - 1;
+            renderFrames(); loadFrameToCanvas(currentFrameIndex); showToast("📋 Скопировано"); scrollToEnd();
+        }, 500);
+    });
+
+    UI.btnAddFrame.addEventListener('pointerup', (e) => {
+        clearTimeout(addT);
+        if(!isCopied) {
+            saveFrame(); frames.push(getEmptyFrame()); currentFrameIndex = frames.length - 1;
+            renderFrames(); loadFrameToCanvas(currentFrameIndex); scrollToEnd();
+        }
+    });
+    UI.btnAddFrame.addEventListener('pointerleave', () => clearTimeout(addT));
+
+    function scrollToEnd() {
+        setTimeout(() => { UI.timelineScroll.scrollTo({ left: UI.timelineScroll.scrollWidth, behavior: 'smooth' }); }, 50);
+    }
+
+    function togglePlay() {
+        const fps = 12;
+        if (isPlaying) {
+            cancelAnimationFrame(renderAnimationFrame); isPlaying = false;
+            UI.playIcon.innerText = "▶"; loadFrameToCanvas(currentFrameIndex);
+        } else {
+            saveFrame(); isPlaying = true; UI.playIcon.innerText = "⏸";
+            let startRealTime = performance.now();
+            let startFrameIdx = currentFrameIndex;
+
+            function renderLoop() {
+                if(!isPlaying) return;
+                const elapsedMs = performance.now() - startRealTime;
+                let virtualFrame = startFrameIdx + Math.floor(elapsedMs / (1000 / fps));
+
+                if (virtualFrame >= frames.length) {
+                    virtualFrame = 0;
+                    startRealTime = performance.now();
+                    startFrameIdx = 0;
+                }
+
+                if (virtualFrame !== currentFrameIndex) {
+                    loadFrameToCanvas(virtualFrame);
+                }
+                renderAnimationFrame = requestAnimationFrame(renderLoop);
+            }
+            renderLoop();
+        }
+    }
+    UI.play.addEventListener('click', togglePlay);
+
+    // ПОЛНОСТЬЮ ИСПРАВЛЕННЫЙ БЛОК ЭКСПОРТА (ФИКС ОШИБКИ СКАЧИВАНИЯ 0 БАЙТ)
+    async function exportVideo() {
+        if(isPlaying) togglePlay(); saveFrame();
+        UI.status.classList.remove('hidden'); UI.status.classList.add('flex');
+        
+        try {
+            const fps = 12;
+            const tempC = document.createElement('canvas');
+            tempC.width = CANVAS_WIDTH; tempC.height = CANVAS_HEIGHT;
+            
+            // Фикс 1: Обязательно вешаем невидимый холст в тело страницы, иначе WebView заморозит рендер!
+            tempC.style.position = 'fixed';
+            tempC.style.top = '-9999px';
+            tempC.style.visibility = 'hidden';
+            document.body.appendChild(tempC);
+
+            const tCtx = tempC.getContext('2d');
+            let totalFrames = frames.length;
+
+            const stream = tempC.captureStream(fps);
+
+            // Фикс 2: Используем ТОЛЬКО WebM. MP4 аппаратно ломается внутри Android System WebView.
+            const mime = 'video/webm';
+            const recorder = new MediaRecorder(stream, { mimeType: mime });
+            const chunks = [];
+
+            recorder.ondataavailable = e => { if(e.data && e.data.size > 0) chunks.push(e.data); };
+            
+            recorder.onstop = () => {
+                if(tempC.parentNode) tempC.parentNode.removeChild(tempC);
+
+                const blob = new Blob(chunks, {type: mime});
+                if (blob.size === 0) {
+                    showToast("❌ Ошибка: Система выдала 0 байт!");
+                    UI.status.classList.add('hidden'); UI.status.classList.remove('flex');
+                    return;
+                }
+                const filename = `ZRDraw_${Date.now()}.webm`;
+
+                // Фикс 3: Надежная проверка моста Sketchware Android
+                let androidBridge = null;
+                if (typeof Android !== 'undefined') { androidBridge = Android; }
+                else if (window.Android) { androidBridge = window.Android; }
+
+                if (androidBridge && androidBridge.saveFile) {
+                    const reader = new FileReader();
+                    reader.onloadend = function() {
+                        androidBridge.saveFile(reader.result, filename);
+                        UI.status.classList.add('hidden'); UI.status.classList.remove('flex'); 
+                        loadFrameToCanvas(0);
+                        showToast("✅ Передано в Галерею!");
+                    };
+                    reader.readAsDataURL(blob);
+                } else {
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a'); 
+                    a.href = url; a.download = filename;
+                    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+                    UI.status.classList.add('hidden'); UI.status.classList.remove('flex'); 
+                    showToast("📥 Скачивание запущено"); loadFrameToCanvas(0);
+                }
+            };
+
+            recorder.start();
+            const startTime = performance.now();
+            let exportFrame = 0;
+
+            function renderNextFrame() {
+                if (exportFrame >= totalFrames) { 
+                    setTimeout(() => recorder.stop(), 300); 
+                    return; 
+                }
+                UI.statusText.innerText = `Рендер: ${exportFrame+1}/${totalFrames}`;
+                const frameIdx = exportFrame;
+                const img = new Image();
+                img.onload = () => {
+                    tCtx.fillStyle = bgColor; tCtx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+                    tCtx.drawImage(img, 0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+                    
+                    // Фикс 4: Принудительный пинок потока MediaStream для фиксации кадра
+                    try { stream.getVideoTracks()[0].requestFrame(); } catch(e) {}
+                    
+                    exportFrame++;
+                    const targetTime = startTime + (exportFrame * (1000 / fps));
+                    const delay = Math.max(0, targetTime - performance.now());
+                    setTimeout(renderNextFrame, delay);
+                };
+                img.src = frames[frameIdx];
+            }
+            renderNextFrame();
+
+        } catch(e) {
+            UI.status.classList.add('hidden'); UI.status.classList.remove('flex'); 
+            showToast("❌ Критическая ошибка экспорта");
+        }
+    }
+    document.getElementById('btn-export').addEventListener('click', exportVideo);
+
+    function showToast(msg) {
+        const c = document.getElementById('toast-container');
+        const t = document.createElement('div');
+        t.className = 'glass-panel text-white px-4 py-2 rounded-xl text-xs font-bold transition-all opacity-0 translate-y-[-10px]';
+        t.innerText = msg; c.appendChild(t);
+        setTimeout(() => { t.classList.remove('opacity-0', 'translate-y-[-10px]'); }, 10);
+        setTimeout(() => { t.classList.add('opacity-0', 'translate-y-[-10px]'); setTimeout(() => t.remove(), 300); }, 2000);
+    }
+</script>
+</body>
+</html>
