@@ -1,0 +1,2761 @@
+<!DOCTYPE html>
+<html lang="ru" data-theme="liquid" class="h-full bg-slate-950 text-slate-100 select-none overflow-hidden">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>ZRDraws Studio Pro</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome Icons -->
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * { font-family: 'Plus Jakarta Sans', sans-serif; touch-action: manipulation; }
+        canvas { touch-action: none; }
+        
+        /* Glassmorphism & Glossy UI Styles */
+        .glass-panel {
+            background: rgba(15, 23, 42, 0.75);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+        }
+        
+        .glass-btn {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.12) 0%, rgba(255, 255, 255, 0.03) 100%);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            box-shadow: inset 0 1px 1px rgba(255,255,255,0.2), 0 4px 15px rgba(0,0,0,0.2);
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .glass-btn:hover {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.22) 0%, rgba(255, 255, 255, 0.08) 100%);
+            border-color: rgba(255, 255, 255, 0.3);
+            transform: translateY(-1px);
+        }
+
+        .glass-btn:active {
+            transform: translateY(1px) scale(0.97);
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.4);
+        }
+
+        .glossy-gradient-primary {
+            background: linear-gradient(135deg, #6366f1 0%, #4f46e5 50%, #4338ca 100%);
+            box-shadow: 0 4px 20px rgba(99, 102, 241, 0.4), inset 0 1px 1px rgba(255, 255, 255, 0.4);
+        }
+
+        .glossy-gradient-danger {
+            background: linear-gradient(135deg, #f43f5e 0%, #e11d48 50%, #be123c 100%);
+            box-shadow: 0 4px 20px rgba(244, 63, 94, 0.4), inset 0 1px 1px rgba(255, 255, 255, 0.4);
+        }
+
+        .glossy-gradient-success {
+            background: linear-gradient(135deg, #10b981 0%, #059669 50%, #047857 100%);
+            box-shadow: 0 4px 20px rgba(16, 185, 129, 0.4), inset 0 1px 1px rgba(255, 255, 255, 0.4);
+        }
+
+        .glow-active {
+            box-shadow: 0 0 15px rgba(99, 102, 241, 0.6), inset 0 0 10px rgba(255, 255, 255, 0.3);
+        }
+
+        ::-webkit-scrollbar { width: 5px; height: 5px; }
+        ::-webkit-scrollbar-track { background: rgba(15, 23, 42, 0.6); }
+        ::-webkit-scrollbar-thumb { background: rgba(99, 102, 241, 0.5); border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: rgba(99, 102, 241, 0.8); }
+
+        /* Built-in icons (no external font needed) */
+.fas{display:inline-block;width:1em;height:1em;background-color:currentColor;vertical-align:-0.125em;-webkit-mask-repeat:no-repeat;mask-repeat:no-repeat;-webkit-mask-position:center;mask-position:center;-webkit-mask-size:contain;mask-size:contain;flex-shrink:0}
+.fa-play{-webkit-mask-image:url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22black%22 stroke=%22none%22%3E%3Cpath d=%22M7 4l13 8-13 8z%22/%3E%3C/svg%3E");mask-image:url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22black%22 stroke=%22none%22%3E%3Cpath d=%22M7 4l13 8-13 8z%22/%3E%3C/svg%3E")}
+.fa-pause{-webkit-mask-image:url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22black%22 stroke=%22none%22%3E%3Crect x=%226%22 y=%224%22 width=%224%22 height=%2216%22 rx=%221%22/%3E%3Crect x=%2214%22 y=%224%22 width=%224%22 height=%2216%22 rx=%221%22/%3E%3C/svg%3E");mask-image:url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22black%22 stroke=%22none%22%3E%3Crect x=%226%22 y=%224%22 width=%224%22 height=%2216%22 rx=%221%22/%3E%3Crect x=%2214%22 y=%224%22 width=%224%22 height=%2216%22 rx=%221%22/%3E%3C/svg%3E")}
+.fa-stop{-webkit-mask-image:url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22black%22 stroke=%22none%22%3E%3Crect x=%226%22 y=%226%22 width=%2212%22 height=%2212%22 rx=%222%22/%3E%3C/svg%3E");mask-image:url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22black%22 stroke=%22none%22%3E%3Crect x=%226%22 y=%226%22 width=%2212%22 height=%2212%22 rx=%222%22/%3E%3C/svg%3E")}
+.fa-step-forward{-webkit-mask-image:url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22black%22 stroke=%22none%22%3E%3Cpath d=%22M5 4l10 8-10 8z%22/%3E%3Crect x=%2217%22 y=%224%22 width=%223%22 height=%2216%22 rx=%221%22/%3E%3C/svg%3E");mask-image:url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22black%22 stroke=%22none%22%3E%3Cpath d=%22M5 4l10 8-10 8z%22/%3E%3Crect x=%2217%22 y=%224%22 width=%223%22 height=%2216%22 rx=%221%22/%3E%3C/svg%3E")}
+.fa-plus{-webkit-mask-image:url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22black%22 stroke-width=%222%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22%3E%3Cpath d=%22M12 5v14M5 12h14%22/%3E%3C/svg%3E");mask-image:url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22black%22 stroke-width=%222%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22%3E%3Cpath d=%22M12 5v14M5 12h14%22/%3E%3C/svg%3E")}
+.fa-minus{-webkit-mask-image:url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22black%22 stroke-width=%222%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22%3E%3Cpath d=%22M5 12h14%22/%3E%3C/svg%3E");mask-image:url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22black%22 stroke-width=%222%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22%3E%3Cpath d=%22M5 12h14%22/%3E%3C/svg%3E")}
+.fa-times{-webkit-mask-image:url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22black%22 stroke-width=%222%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22%3E%3Cpath d=%22M6 6l12 12M18 6L6 18%22/%3E%3C/svg%3E");mask-image:url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22black%22 stroke-width=%222%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22%3E%3Cpath d=%22M6 6l12 12M18 6L6 18%22/%3E%3C/svg%3E")}
+.fa-times-circle{-webkit-mask-image:url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22black%22 stroke-width=%222%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22%3E%3Ccircle cx=%2212%22 cy=%2212%22 r=%229%22/%3E%3Cpath d=%22M9 9l6 6M15 9l-6 6%22/%3E%3C/svg%3E");mask-image:url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22black%22 stroke-width=%222%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22%3E%3Ccircle cx=%2212%22 cy=%2212%22 r=%229%22/%3E%3Cpath d=%22M9 9l6 6M15 9l-6 6%22/%3E%3C/svg%3E")}
+.fa-check{-webkit-mask-image:url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22black%22 stroke-width=%222%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22%3E%3Cpath d=%22M5 13l4 4L19 7%22/%3E%3C/svg%3E");mask-image:url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22black%22 stroke-width=%222%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22%3E%3Cpath d=%22M5 13l4 4L19 7%22/%3E%3C/svg%3E")}
+.fa-check-circle{-webkit-mask-image:url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22black%22 stroke-width=%222%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22%3E%3Ccircle cx=%2212%22 cy=%2212%22 r=%229%22/%3E%3Cpath d=%22M8 12l3 3 5-6%22/%3E%3C/svg%3E");mask-image:url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22black%22 stroke-width=%222%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22%3E%3Ccircle cx=%2212%22 cy=%2212%22 r=%229%22/%3E%3Cpath d=%22M8 12l3 3 5-6%22/%3E%3C/svg%3E")}
+.fa-arrow-right{-webkit-mask-image:url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22black%22 stroke-width=%222%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22%3E%3Cpath d=%22M5 12h14M13 6l6 6-6 6%22/%3E%3C/svg%3E");mask-image:url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22black%22 stroke-width=%222%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22%3E%3Cpath d=%22M5 12h14M13 6l6 6-6 6%22/%3E%3C/svg%3E")}
+.fa-copy{-webkit-mask-image:url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22black%22 stroke-width=%222%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22%3E%3Crect x=%229%22 y=%229%22 width=%2211%22 height=%2211%22 rx=%222%22/%3E%3Cpath d=%22M5 15V6a2 2 0 0 1 2-2h9%22/%3E%3C/svg%3E");mask-image:url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22black%22 stroke-width=%222%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22%3E%3Crect x=%229%22 y=%229%22 width=%2211%22 height=%2211%22 rx=%222%22/%3E%3Cpath d=%22M5 15V6a2 2 0 0 1 2-2h9%22/%3E%3C/svg%3E")}
+.fa-trash{-webkit-mask-image:url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22black%22 stroke-width=%222%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22%3E%3Cpath d=%22M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3%22/%3E%3C/svg%3E");mask-image:url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22black%22 stroke-width=%222%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22%3E%3Cpath d=%22M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3%22/%3E%3C/svg%3E")}
+.fa-trash-alt{-webkit-mask-image:url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22black%22 stroke-width=%222%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22%3E%3Cpath d=%22M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3%22/%3E%3C/svg%3E");mask-image:url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22black%22 stroke-width=%222%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22%3E%3Cpath d=%22M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3%22/%3E%3C/svg%3E")}
+.fa-eraser{-webkit-mask-image:url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22black%22 stroke-width=%222%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22%3E%3Cpath d=%22M3 15l9-9 7 7-6 6H8z%22/%3E%3Cpath d=%22M8 21h12%22/%3E%3C/svg%3E");mask-image:url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22black%22 stroke-width=%222%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22%3E%3Cpath d=%22M3 15l9-9 7 7-6 6H8z%22/%3E%3Cpath d=%22M8 21h12%22/%3E%3C/svg%3E")}
+.fa-fill{-webkit-mask-image:url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22black%22 stroke-width=%222%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22%3E%3Cpath d=%22M5 11l7-7 8 8-7 7z%22/%3E%3Cpath d=%22M20 16c1 2 2 3 2 4a2 2 0 0 1-4 0c0-1 1-2 2-4z%22/%3E%3C/svg%3E");mask-image:url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22black%22 stroke-width=%222%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22%3E%3Cpath d=%22M5 11l7-7 8 8-7 7z%22/%3E%3Cpath d=%22M20 16c1 2 2 3 2 4a2 2 0 0 1-4 0c0-1 1-2 2-4z%22/%3E%3C/svg%3E")}
+.fa-fill-drip{-webkit-mask-image:url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22black%22 stroke-width=%222%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22%3E%3Cpath d=%22M5 11l7-7 8 8-7 7z%22/%3E%3Cpath d=%22M20 16c1 2 2 3 2 4a2 2 0 0 1-4 0c0-1 1-2 2-4z%22/%3E%3C/svg%3E");mask-image:url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22black%22 stroke-width=%222%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22%3E%3Cpath d=%22M5 11l7-7 8 8-7 7z%22/%3E%3Cpath d=%22M20 16c1 2 2 3 2 4a2 2 0 0 1-4 0c0-1 1-2 2-4z%22/%3E%3C/svg%3E")}
+.fa-file-video{-webkit-mask-image:url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22black%22 stroke-width=%222%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22%3E%3Crect x=%223%22 y=%226%22 width=%2213%22 height=%2212%22 rx=%222%22/%3E%3Cpath d=%22M16 10l5-3v10l-5-3z%22/%3E%3C/svg%3E");mask-image:url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22black%22 stroke-width=%222%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22%3E%3Crect x=%223%22 y=%226%22 width=%2213%22 height=%2212%22 rx=%222%22/%3E%3Cpath d=%22M16 10l5-3v10l-5-3z%22/%3E%3C/svg%3E")}
+.fa-folder-open{-webkit-mask-image:url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22black%22 stroke-width=%222%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22%3E%3Cpath d=%22M3 19V6a1 1 0 0 1 1-1h5l2 2h8a1 1 0 0 1 1 1v2%22/%3E%3Cpath d=%22M3 19l3-9h17l-3 9z%22/%3E%3C/svg%3E");mask-image:url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22black%22 stroke-width=%222%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22%3E%3Cpath d=%22M3 19V6a1 1 0 0 1 1-1h5l2 2h8a1 1 0 0 1 1 1v2%22/%3E%3Cpath d=%22M3 19l3-9h17l-3 9z%22/%3E%3C/svg%3E")}
+.fa-image{-webkit-mask-image:url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22black%22 stroke-width=%222%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22%3E%3Crect x=%223%22 y=%224%22 width=%2218%22 height=%2216%22 rx=%222%22/%3E%3Ccircle cx=%229%22 cy=%2210%22 r=%221.5%22/%3E%3Cpath d=%22M21 16l-5-5-8 9%22/%3E%3C/svg%3E");mask-image:url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22black%22 stroke-width=%222%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22%3E%3Crect x=%223%22 y=%224%22 width=%2218%22 height=%2216%22 rx=%222%22/%3E%3Ccircle cx=%229%22 cy=%2210%22 r=%221.5%22/%3E%3Cpath d=%22M21 16l-5-5-8 9%22/%3E%3C/svg%3E")}
+.fa-info-circle{-webkit-mask-image:url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22black%22 stroke-width=%222%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22%3E%3Ccircle cx=%2212%22 cy=%2212%22 r=%229%22/%3E%3Cpath d=%22M12 11v6M12 7.5v.01%22/%3E%3C/svg%3E");mask-image:url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22black%22 stroke-width=%222%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22%3E%3Ccircle cx=%2212%22 cy=%2212%22 r=%229%22/%3E%3Cpath d=%22M12 11v6M12 7.5v.01%22/%3E%3C/svg%3E")}
+.fa-layer-group{-webkit-mask-image:url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22black%22 stroke-width=%222%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22%3E%3Cpath d=%22M12 3l10 5-10 5L2 8z%22/%3E%3Cpath d=%22M2 12l10 5 10-5M2 16l10 5 10-5%22/%3E%3C/svg%3E");mask-image:url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22black%22 stroke-width=%222%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22%3E%3Cpath d=%22M12 3l10 5-10 5L2 8z%22/%3E%3Cpath d=%22M2 12l10 5 10-5M2 16l10 5 10-5%22/%3E%3C/svg%3E")}
+.fa-microphone{-webkit-mask-image:url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22black%22 stroke-width=%222%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22%3E%3Crect x=%229%22 y=%223%22 width=%226%22 height=%2211%22 rx=%223%22/%3E%3Cpath d=%22M5 11a7 7 0 0 0 14 0M12 18v3%22/%3E%3C/svg%3E");mask-image:url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22black%22 stroke-width=%222%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22%3E%3Crect x=%229%22 y=%223%22 width=%226%22 height=%2211%22 rx=%223%22/%3E%3Cpath d=%22M5 11a7 7 0 0 0 14 0M12 18v3%22/%3E%3C/svg%3E")}
+.fa-music{-webkit-mask-image:url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22black%22 stroke-width=%222%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22%3E%3Cpath d=%22M9 18V5l11-2v13%22/%3E%3Ccircle cx=%226.5%22 cy=%2218%22 r=%223%22/%3E%3Ccircle cx=%2217.5%22 cy=%2216%22 r=%223%22/%3E%3C/svg%3E");mask-image:url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22black%22 stroke-width=%222%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22%3E%3Cpath d=%22M9 18V5l11-2v13%22/%3E%3Ccircle cx=%226.5%22 cy=%2218%22 r=%223%22/%3E%3Ccircle cx=%2217.5%22 cy=%2216%22 r=%223%22/%3E%3C/svg%3E")}
+.fa-paint-brush{-webkit-mask-image:url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22black%22 stroke-width=%222%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22%3E%3Cpath d=%22M18 3l3 3-9 9-3-3z%22/%3E%3Cpath d=%22M9 12c-3 0-5 2-5 5 0 2-1 3-1 4 3 0 7 0 8-4%22/%3E%3C/svg%3E");mask-image:url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22black%22 stroke-width=%222%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22%3E%3Cpath d=%22M18 3l3 3-9 9-3-3z%22/%3E%3Cpath d=%22M9 12c-3 0-5 2-5 5 0 2-1 3-1 4 3 0 7 0 8-4%22/%3E%3C/svg%3E")}
+.fa-tasks{-webkit-mask-image:url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22black%22 stroke-width=%222%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22%3E%3Cpath d=%22M10 6h11M10 12h11M10 18h11M3 6l1.5 1.5L7 5M3 12l1.5 1.5L7 11M3 18l1.5 1.5L7 17%22/%3E%3C/svg%3E");mask-image:url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22black%22 stroke-width=%222%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22%3E%3Cpath d=%22M10 6h11M10 12h11M10 18h11M3 6l1.5 1.5L7 5M3 12l1.5 1.5L7 11M3 18l1.5 1.5L7 17%22/%3E%3C/svg%3E")}
+.fa-upload{-webkit-mask-image:url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22black%22 stroke-width=%222%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22%3E%3Cpath d=%22M12 16V4M7 9l5-5 5 5M4 20h16%22/%3E%3C/svg%3E");mask-image:url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22black%22 stroke-width=%222%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22%3E%3Cpath d=%22M12 16V4M7 9l5-5 5 5M4 20h16%22/%3E%3C/svg%3E")}
+.fa-undo{-webkit-mask-image:url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22black%22 stroke-width=%222%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22%3E%3Cpath d=%22M9 14L4 9l5-5%22/%3E%3Cpath d=%22M4 9h10a6 6 0 0 1 0 12h-3%22/%3E%3C/svg%3E");mask-image:url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22black%22 stroke-width=%222%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22%3E%3Cpath d=%22M9 14L4 9l5-5%22/%3E%3Cpath d=%22M4 9h10a6 6 0 0 1 0 12h-3%22/%3E%3C/svg%3E")}
+.fa-redo{-webkit-mask-image:url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22black%22 stroke-width=%222%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22%3E%3Cpath d=%22M15 14l5-5-5-5%22/%3E%3Cpath d=%22M20 9H10a6 6 0 0 0 0 12h3%22/%3E%3C/svg%3E");mask-image:url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22black%22 stroke-width=%222%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22%3E%3Cpath d=%22M15 14l5-5-5-5%22/%3E%3Cpath d=%22M20 9H10a6 6 0 0 0 0 12h3%22/%3E%3C/svg%3E")}
+        aside > * { flex-shrink:0; }
+.fa-rotate-cw{-webkit-mask-image:url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22black%22 stroke-width=%222%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22%3E%3Cpath d=%22M21 12a9 9 0 1 1-3-6.7L21 8%22/%3E%3Cpath d=%22M21 3v5h-5%22/%3E%3C/svg%3E");mask-image:url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22black%22 stroke-width=%222%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22%3E%3Cpath d=%22M21 12a9 9 0 1 1-3-6.7L21 8%22/%3E%3Cpath d=%22M21 3v5h-5%22/%3E%3C/svg%3E")}
+.fa-rotate-ccw{-webkit-mask-image:url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22black%22 stroke-width=%222%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22%3E%3Cpath d=%22M3 12a9 9 0 1 0 3-6.7L3 8%22/%3E%3Cpath d=%22M3 3v5h5%22/%3E%3C/svg%3E");mask-image:url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22black%22 stroke-width=%222%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22%3E%3Cpath d=%22M3 12a9 9 0 1 0 3-6.7L3 8%22/%3E%3Cpath d=%22M3 3v5h5%22/%3E%3C/svg%3E")}
+.fa-bucket-x{-webkit-mask-image:url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22black%22 stroke-width=%222%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22%3E%3Cpath d=%22M4 10l6-6 7 7-6 6z%22/%3E%3Cpath d=%22M16 17l5 5M21 17l-5 5%22/%3E%3C/svg%3E");mask-image:url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22black%22 stroke-width=%222%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22%3E%3Cpath d=%22M4 10l6-6 7 7-6 6z%22/%3E%3Cpath d=%22M16 17l5 5M21 17l-5 5%22/%3E%3C/svg%3E")}
+.fa-sliders{-webkit-mask-image:url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22black%22 stroke-width=%222%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22%3E%3Cpath d=%22M4 6h9M17 6h3M4 12h3M11 12h9M4 18h11M19 18h1%22/%3E%3Ccircle cx=%2215%22 cy=%226%22 r=%222%22/%3E%3Ccircle cx=%229%22 cy=%2212%22 r=%222%22/%3E%3Ccircle cx=%2217%22 cy=%2218%22 r=%222%22/%3E%3C/svg%3E");mask-image:url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22black%22 stroke-width=%222%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22%3E%3Cpath d=%22M4 6h9M17 6h3M4 12h3M11 12h9M4 18h11M19 18h1%22/%3E%3Ccircle cx=%2215%22 cy=%226%22 r=%222%22/%3E%3Ccircle cx=%229%22 cy=%2212%22 r=%222%22/%3E%3Ccircle cx=%2217%22 cy=%2218%22 r=%222%22/%3E%3C/svg%3E")}
+.fa-drop{-webkit-mask-image:url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22black%22 stroke-width=%222%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22%3E%3Cpath d=%22M12 3c4 5 6 8 6 11a6 6 0 0 1-12 0c0-3 2-6 6-11z%22/%3E%3C/svg%3E");mask-image:url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22black%22 stroke-width=%222%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22%3E%3Cpath d=%22M12 3c4 5 6 8 6 11a6 6 0 0 1-12 0c0-3 2-6 6-11z%22/%3E%3C/svg%3E")}
+
+        /* ===== Liquid Glass theme (default). Switch with the drop button in the header; "classic" keeps the old glossy look ===== */
+        html[data-theme="liquid"], html[data-theme="liquid"] body { background: #0c1222 !important; }
+        html[data-theme="liquid"] body::before {
+            content:""; position:fixed; inset:-25%; z-index:-1; pointer-events:none;
+            background:
+              radial-gradient(38% 32% at 14% 18%, rgba(110,140,255,.26), transparent 70%),
+              radial-gradient(34% 28% at 88% 12%, rgba(80,190,235,.17), transparent 70%),
+              radial-gradient(40% 34% at 72% 88%, rgba(170,130,255,.18), transparent 70%),
+              radial-gradient(34% 28% at 8% 92%, rgba(60,210,190,.12), transparent 70%);
+            filter: blur(24px);
+        }
+        html[data-theme="liquid"] #canvasContainer { background: transparent !important; }
+        html[data-theme="liquid"] .bg-slate-950\/80 { background: rgba(255,255,255,.04) !important; }
+        html[data-theme="liquid"] .glass-panel {
+            background: linear-gradient(180deg, rgba(255,255,255,.11) 0%, rgba(255,255,255,.055) 100%);
+            backdrop-filter: blur(22px) saturate(150%); -webkit-backdrop-filter: blur(22px) saturate(150%);
+            border: 1px solid rgba(255,255,255,.16);
+            box-shadow: inset 0 1px 0 rgba(255,255,255,.22), 0 10px 30px rgba(0,0,0,.22);
+        }
+        html[data-theme="liquid"] .glass-btn {
+            background: rgba(255,255,255,.085);
+            backdrop-filter: none; -webkit-backdrop-filter: none;
+            border: 1px solid rgba(255,255,255,.14);
+            box-shadow: inset 0 1px 0 rgba(255,255,255,.18);
+        }
+        html[data-theme="liquid"] .glass-btn:hover { background: rgba(255,255,255,.14); border-color: rgba(255,255,255,.24); transform: none; }
+        html[data-theme="liquid"] .glass-btn:active { transform: scale(.97); box-shadow: inset 0 1px 3px rgba(0,0,0,.25); }
+        html[data-theme="liquid"] .glossy-gradient-primary {
+            background: linear-gradient(180deg, rgba(140,160,255,.50), rgba(110,130,240,.34));
+            border: 1px solid rgba(190,200,255,.42); box-shadow: inset 0 1px 0 rgba(255,255,255,.35);
+        }
+        html[data-theme="liquid"] .glossy-gradient-danger {
+            background: linear-gradient(180deg, rgba(251,120,140,.48), rgba(244,90,115,.32));
+            border: 1px solid rgba(255,190,200,.40); box-shadow: inset 0 1px 0 rgba(255,255,255,.30);
+        }
+        html[data-theme="liquid"] .glossy-gradient-success {
+            background: linear-gradient(180deg, rgba(70,215,160,.46), rgba(40,185,135,.30));
+            border: 1px solid rgba(170,245,215,.38); box-shadow: inset 0 1px 0 rgba(255,255,255,.30);
+        }
+        html[data-theme="liquid"] .glow-active { box-shadow: 0 0 0 2px rgba(160,180,255,.55), inset 0 1px 0 rgba(255,255,255,.3); }
+        html[data-theme="liquid"] .asset-chip { background: rgba(255,255,255,.08); border-color: rgba(255,255,255,.16); }
+        html[data-theme="liquid"] ::-webkit-scrollbar-track { background: transparent; }
+        html[data-theme="liquid"] ::-webkit-scrollbar-thumb { background: rgba(255,255,255,.22); }
+        input[type=range].aud-range { width:100%; accent-color:#9db0ff; height:28px; }
+        .hist-off { opacity:.35; pointer-events:none; }
+        :root { --canvas-bg: rgb(255,255,255); }
+        #mainCanvas { background-color: transparent; }
+        #canvasWrapper { background-color: var(--canvas-bg) !important; }
+        .frame-thumb { background-color: var(--canvas-bg); }
+        html, body { min-height: 100%; }
+        #selCanvas.hidden, #exportOverlay.hidden { display:none !important; }
+        #photoCanvas { position:absolute; inset:0; width:100%; height:100%; z-index:5; pointer-events:none; }
+        #selCanvas { position:absolute; inset:0; width:100%; height:100%; z-index:30; touch-action:none; cursor:move; }
+        #audioScroll { scrollbar-width:none; }
+        #audioScroll::-webkit-scrollbar { display:none; }
+        .aud-clip { position:absolute; top:3px; height:calc(100% - 6px); border-radius:10px; overflow:hidden; background:rgba(20,184,166,.38); border:2px solid transparent; touch-action:pan-x; }
+        .aud-clip.sel { border-color:#fff; touch-action:none; cursor:grab; }
+        .aud-h { position:absolute; top:0; width:46px; height:100%; background:#fff; display:none; align-items:center; justify-content:center; touch-action:none; z-index:2; cursor:ew-resize; }
+        .aud-h::after { content:""; width:5px; height:30px; border-radius:3px; background:#64748b; }
+        .aud-clip.sel .aud-h { display:flex; }
+        #audHL { left:0; border-radius:8px 0 0 8px; } #audHR { right:0; border-radius:0 8px 8px 0; }
+        .ab-btn { display:flex; align-items:center; gap:.35rem; padding:.4rem .7rem; border-radius:.75rem; font-size:11px; font-weight:700; color:#e2e8f0; white-space:nowrap; flex-shrink:0; }
+        #exportOverlay { touch-action:none; }
+        #exportBar { transition: width .15s linear; }
+        button, input, label, select { -webkit-tap-highlight-color: transparent; }
+        button, label { touch-action: manipulation; }
+        #canvasContainer { min-width: 0; min-height: 180px; }
+        #canvasWrapper { max-width: 100%; max-height: 100%; }
+        #mainCanvas, #onionCanvas { display:block; max-width:100%; max-height:100%; }
+        #assetsShelf { max-height: 110px; overflow:auto; }
+        .asset-chip { display:flex; align-items:center; gap:.5rem; padding:.35rem .55rem; border:1px solid rgba(255,255,255,.12); border-radius:.7rem; background:rgba(30,41,59,.75); font-size:11px; min-width:0; }
+        .asset-chip span { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:150px; }
+        .asset-chip button { color:#fda4af; padding:0 .2rem; }
+        @media (max-width: 760px) {
+          header { height:auto !important; min-height:58px; padding:8px !important; flex-wrap:wrap; gap:7px; }
+          header > div { gap:6px !important; }
+          header .text-xl { font-size: .95rem; }
+          #btnToggleMultiSelect { padding:6px 8px; }
+          #lblMultiSelectBtn { display:none; }
+          #btnExport { padding:8px 10px; }
+          #lblExport { display:inline; }
+          #btnOnion { padding:6px 8px; }
+          #lblOnion { display:none; }
+          .flex-1.flex.overflow-hidden.relative { min-height:0; }
+          aside { width:48px !important; padding:8px 4px !important; gap:8px !important; }
+          aside .w-11 { width:36px !important; height:36px !important; }
+          aside .w-9 { width:30px !important; height:30px !important; }
+          #canvasContainer { padding:6px !important; }
+          footer .h-32 { height:100px !important; padding:6px !important; }
+          #btnAddFrame { width:52px !important; height:78px !important; }
+          #framesTrack .w-16 { width:56px !important; height:78px !important; }
+          #framesTrack .h-16 { height:50px !important; }
+          #audioRow { padding-left:6px !important; padding-right:6px !important; }
+          #audioSide { width:52px !important; }
+          #audioWaveformContainer { min-width:100px; margin:0 !important; }
+          #rgbModal > div, #frameOptionModal > div { width:min(92vw, 360px); padding:16px; }
+        }
+        @media (max-width: 420px) {
+          #fpsInput { width:30px !important; }
+          header .glass-btn { font-size:10px; }
+          #btnExport { font-size:10px; }
+          #btnRecordAudio span { display:none; }
+          #lblNoAudio { font-size:10px; }
+        }
+
+    </style>
+</head>
+<body class="h-full flex flex-col overflow-hidden bg-slate-950 text-slate-100 select-none">
+
+    <!-- TOP HEADER / TOOLBAR -->
+    <header class="h-16 glass-panel z-30 flex items-center justify-between px-4 border-b border-white/10">
+        <!-- Brand & Main Title -->
+        <div class="flex items-center space-x-3">
+            <div class="w-9 h-9 rounded-xl glossy-gradient-primary flex items-center justify-center font-black text-xl shadow-lg">
+                Z
+            </div>
+            <span class="text-xl font-extrabold bg-gradient-to-r from-cyan-400 via-indigo-400 to-pink-500 bg-clip-text text-transparent tracking-wide">
+                ZRDraws <span class="text-xs px-1.5 py-0.5 rounded-full bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 ml-1">PRO</span>
+            </span>
+            <button id="btnTheme" class="glass-btn w-9 h-9 rounded-xl flex items-center justify-center text-cyan-200" title="Liquid Glass"><i class="fas fa-drop text-sm"></i></button>
+            <!-- Language Selector -->
+            <select id="langSelect" class="glass-btn text-xs font-semibold text-slate-200 rounded-xl px-2.5 py-1.5 focus:outline-none cursor-pointer">
+                <option value="RU" class="bg-slate-900">RU</option>
+                <option value="AZ" class="bg-slate-900">AZ</option>
+                <option value="EN" class="bg-slate-900">EN</option>
+            </select>
+        </div>
+
+        <!-- Animation Controls (Play/Pause, Onion Skin, FPS) -->
+        <div class="flex items-center space-x-2 md:space-x-4">
+            <button id="btnPlay" class="w-10 h-10 rounded-xl glossy-gradient-success flex items-center justify-center text-white transition active:scale-95" title="Play/Pause">
+                <i class="fas fa-play text-xs" id="playIcon"></i>
+            </button>
+
+            <!-- FPS Input Control -->
+            <div class="flex items-center glass-btn rounded-xl px-3 py-1.5 space-x-2">
+                <span class="text-xs text-indigo-300 font-bold">FPS</span>
+                <input type="number" id="fpsInput" min="1" max="120" value="12" class="w-10 bg-transparent text-xs text-center font-extrabold text-white focus:outline-none">
+            </div>
+
+            <!-- Onion Skin Toggle -->
+            <button id="btnOnion" class="glass-btn px-3 py-1.5 rounded-xl text-xs font-semibold flex items-center space-x-2 text-slate-200">
+                <i class="fas fa-layer-group text-indigo-400"></i>
+                <span id="lblOnion">Onion Skin</span>
+                <span id="onionStatus" class="w-2.5 h-2.5 rounded-full bg-emerald-400 shadow-[0_0_8px_#34d399]"></span>
+            </button>
+        </div>
+
+        <!-- Settings & Export Controls -->
+        <div class="flex items-center space-x-2">
+            <!-- Multi-Select Mode Toggle -->
+            <button id="btnToggleMultiSelect" class="glass-btn px-3 py-1.5 rounded-xl text-xs font-bold text-amber-300 flex items-center space-x-1.5">
+                <i class="fas fa-tasks"></i>
+                <span id="lblMultiSelectBtn">Select Frames</span>
+            </button>
+
+            <!-- Background RGB Selector Button -->
+            <button id="btnBgColor" class="w-9 h-9 rounded-xl glass-btn flex items-center justify-center shadow" title="Background Color">
+                <i class="fas fa-fill-drip text-xs text-indigo-300"></i>
+            </button>
+
+            <!-- Export Media Button -->
+            <button id="btnExport" class="px-4 py-2 rounded-xl glossy-gradient-primary text-white font-bold text-xs flex items-center space-x-2 active:scale-95 transition">
+                <i class="fas fa-file-video text-xs"></i>
+                <span id="lblExport">Export</span>
+            </button>
+        </div>
+    </header>
+
+    <!-- MAIN STUDIO AREA -->
+    <div class="flex-1 flex overflow-hidden relative">
+
+        <!-- LEFT DRAWING TOOLBAR -->
+        <aside class="w-16 glass-panel border-r border-white/10 flex flex-col items-center py-4 space-y-3 z-20 overflow-y-auto">
+            <!-- Undo / Redo -->
+            <button id="btnUndo" class="w-11 h-11 rounded-2xl glass-btn text-slate-100 flex items-center justify-center transition hist-off" title="Назад"><i class="fas fa-undo text-sm"></i></button>
+            <button id="btnRedo" class="w-11 h-11 rounded-2xl glass-btn text-slate-100 flex items-center justify-center transition hist-off" title="Вперёд"><i class="fas fa-redo text-sm"></i></button>
+            <div class="w-8 h-[1px] bg-white/10 my-1"></div>
+            <!-- Brush Tool -->
+            <button id="toolBrush" class="tool-btn w-11 h-11 rounded-2xl glossy-gradient-primary text-white flex items-center justify-center transition" title="Brush">
+                <i class="fas fa-paint-brush text-sm"></i>
+            </button>
+            <!-- Eraser Tool -->
+            <button id="toolEraser" class="tool-btn w-11 h-11 rounded-2xl glass-btn text-slate-400 flex items-center justify-center transition" title="Eraser">
+                <i class="fas fa-eraser text-sm"></i>
+            </button>
+            <!-- Bucket Fill Tool -->
+            <button id="toolFill" class="tool-btn w-11 h-11 rounded-2xl glass-btn text-slate-400 flex items-center justify-center transition" title="Bucket Fill">
+                <i class="fas fa-fill text-sm"></i>
+            </button>
+            <!-- Fill-erase: removes the whole colour area under the tap -->
+            <button id="toolFillErase" class="tool-btn w-11 h-11 rounded-2xl glass-btn text-slate-400 flex items-center justify-center transition" title="Залив-удалить">
+                <i class="fas fa-bucket-x text-sm"></i>
+            </button>
+            <!-- Clear Canvas Tool -->
+            <button id="toolClear" class="w-11 h-11 rounded-2xl glass-btn text-rose-400 hover:text-rose-300 flex items-center justify-center transition" title="Clear Canvas">
+                <i class="fas fa-trash-alt text-sm"></i>
+            </button>
+
+            <div class="w-8 h-[1px] bg-white/10 my-1"></div>
+
+            <!-- Color Palette Trigger -->
+            <button id="btnBrushColor" class="w-9 h-9 rounded-2xl border-2 border-white/40 shadow-lg transition transform hover:scale-105" style="background-color: #000000;"></button>
+
+            <!-- Brush Size Picker -->
+            <button id="btnSizePicker" class="w-11 h-11 rounded-2xl glass-btn text-slate-200 flex flex-col items-center justify-center space-y-0.5">
+                <div id="brushPreviewCircle" class="w-3.5 h-3.5 rounded-full bg-white shadow-sm"></div>
+                <span id="brushSizeVal" class="text-[9px] font-extrabold text-indigo-300">5px</span>
+            </button>
+
+            <div class="w-8 h-[1px] bg-white/10 my-1"></div>
+
+            <!-- Import Photo -->
+            <label class="w-11 h-11 rounded-2xl glass-btn text-cyan-400 hover:text-cyan-300 flex items-center justify-center cursor-pointer transition" title="Import Image">
+                <i class="fas fa-image text-sm"></i>
+                <input type="file" id="imageInput" accept="image/*" class="hidden">
+            </label>
+        </aside>
+
+        <!-- CANVAS WORKSPACE -->
+        <main class="flex-1 bg-gradient-to-br from-slate-950 via-slate-900 to-indigo-950/40 flex items-center justify-center p-3 relative overflow-hidden" id="canvasContainer">
+            <!-- Animation Canvas Wrapper -->
+            <div class="relative shadow-2xl rounded-2xl overflow-hidden border border-white/15 bg-white transition-all" id="canvasWrapper">
+                <canvas id="onionCanvas" class="absolute inset-0 pointer-events-none opacity-60 z-20"></canvas>
+                <canvas id="mainCanvas" class="relative z-10 cursor-crosshair"></canvas>
+                <canvas id="photoCanvas"></canvas>
+                <canvas id="selCanvas" class="hidden"></canvas>
+            </div>
+
+            <!-- SIZE ADJUSTMENT SLIDER PANEL -->
+            <div id="sizeSliderPanel" class="hidden absolute left-20 top-16 glass-panel p-4 rounded-2xl shadow-2xl z-40 w-56 border border-white/15">
+                <div class="flex justify-between items-center mb-2">
+                    <span id="lblToolSize" class="text-xs font-bold text-slate-200">Tool Size</span>
+                    <span id="sliderSizeVal" class="text-xs font-extrabold text-indigo-400">5 px</span>
+                </div>
+                <input type="range" id="inputToolSize" min="1" max="100" value="5" class="w-full accent-indigo-500 cursor-pointer h-1.5 bg-slate-700 rounded-lg">
+            </div>
+
+            <!-- RGB COLOR PICKER MODAL -->
+            <div id="rgbModal" class="hidden fixed inset-0 bg-black/70 backdrop-blur-md z-[150] flex items-center justify-center p-3">
+                <div class="glass-panel border border-white/20 p-5 rounded-3xl w-full max-w-xs max-h-[92vh] overflow-y-auto shadow-2xl space-y-3">
+                    <div class="flex justify-between items-center border-b border-white/10 pb-3">
+                        <h3 id="rgbTitle" class="text-xs font-extrabold text-slate-100 tracking-wider uppercase">Select RGB Color</h3>
+                        <button id="closeRgbModal" class="w-9 h-9 glass-btn rounded-xl flex items-center justify-center text-slate-100"><i class="fas fa-times"></i></button>
+                    </div>
+
+                    <div id="rgbPreview" class="w-full h-14 rounded-2xl border border-white/20 shadow-inner" style="background-color: rgb(0,0,0);"></div>
+                    <div class="flex items-center gap-2">
+                        <label class="text-xs text-slate-300 flex-1">Цвет / HEX</label>
+                        <input type="color" id="nativeColorPicker" value="#000000" class="w-12 h-9 rounded-lg bg-transparent border border-white/20 cursor-pointer" aria-label="Choose color">
+                        <input type="text" id="hexColorInput" value="#000000" maxlength="7" class="w-24 rounded-lg bg-slate-900 border border-white/15 px-2 py-2 text-xs font-mono uppercase" aria-label="HEX color">
+                    </div>
+
+                    <div class="space-y-3">
+                        <div>
+                            <div class="flex justify-between text-xs text-rose-400 font-bold mb-1">
+                                <span>Red (R)</span><span id="valR">0</span>
+                            </div>
+                            <input type="range" id="sliderR" min="0" max="255" value="0" class="w-full accent-rose-500">
+                        </div>
+                        <div>
+                            <div class="flex justify-between text-xs text-emerald-400 font-bold mb-1">
+                                <span>Green (G)</span><span id="valG">0</span>
+                            </div>
+                            <input type="range" id="sliderG" min="0" max="255" value="0" class="w-full accent-emerald-500">
+                        </div>
+                        <div>
+                            <div class="flex justify-between text-xs text-indigo-400 font-bold mb-1">
+                                <span>Blue (B)</span><span id="valB">0</span>
+                            </div>
+                            <input type="range" id="sliderB" min="0" max="255" value="0" class="w-full accent-indigo-500">
+                        </div>
+                    </div>
+
+                    <button id="applyRgbBtn" class="w-full py-2.5 glossy-gradient-primary text-white rounded-xl text-xs font-extrabold transition">
+                        Применить
+                    </button>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <!-- BOTTOM TIMELINE & AUDIO SECTION (CAPCUT STYLE) -->
+    <footer class="glass-panel border-t border-white/10 flex flex-col z-30">
+
+        <!-- MULTI-SELECT TOOLBAR OVERLAY (WHEN SELECTION IS ACTIVE) -->
+        <div id="multiSelectBar" class="hidden h-10 bg-indigo-950/80 border-b border-indigo-500/30 px-4 flex items-center justify-between text-xs">
+            <span class="font-bold text-indigo-200">
+                <span id="lblSelectedCount">0</span> <span id="lblFramesSelected">Frames Selected</span>
+            </span>
+            <div class="flex items-center space-x-2">
+                <button id="btnCopyMulti" class="glass-btn px-2.5 py-1 rounded-lg text-indigo-300 font-bold"><i class="fas fa-copy mr-1"></i><span id="lblCopyMulti">Copy</span></button>
+                <button id="btnDeleteMulti" class="px-2.5 py-1 glossy-gradient-danger rounded-lg text-white font-bold"><i class="fas fa-trash mr-1"></i><span id="lblDeleteMulti">Delete</span></button>
+            </div>
+        </div>
+
+        <!-- UPPER TIMELINE: ANIMATION FRAMES -->
+        <div class="h-32 p-3 flex items-center space-x-3 relative overflow-hidden">
+
+            <!-- ADD FRAME BUTTON WITH PRESS & HOLD TOOLTIP MENU -->
+            <div class="relative flex-shrink-0">
+                <button id="btnAddFrame" class="w-16 h-24 glass-btn border-2 border-dashed border-indigo-400/50 rounded-2xl flex flex-col items-center justify-center text-indigo-300 transition active:scale-95">
+                    <i class="fas fa-plus text-xl mb-1"></i>
+                    <span id="lblAdd" class="text-[10px] font-extrabold text-center px-1">New Frame</span>
+                </button>
+
+                <!-- Long Press Menu for Add Button -->
+                <div id="addFrameMenu" class="hidden absolute bottom-full left-0 mb-3 w-52 glass-panel border border-white/20 rounded-2xl shadow-2xl p-1.5 z-50 text-xs">
+                    <button id="btnCopyLastFrame" class="w-full text-left px-3 py-2 text-slate-200 hover:bg-indigo-600/50 rounded-xl transition flex items-center space-x-2">
+                        <i class="fas fa-copy text-indigo-400"></i>
+                        <span id="lblCopyLast">Copy & Paste Last</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- FRAMES SCROLLABLE CONTAINER -->
+            <div id="framesTrack" class="flex-1 flex items-center space-x-3 overflow-x-auto h-full py-1">
+                <!-- Dynamic frame thumbnails -->
+            </div>
+        </div>
+
+        <!-- IMPORTED ASSETS SHELF: photos and sounds stay visible and removable -->
+        <div id="assetsShelf" class="px-3 py-2 flex items-center gap-2 border-t border-white/5">
+            <span class="text-[10px] uppercase tracking-wider text-slate-400 flex-shrink-0"><i class="fas fa-folder-open mr-1"></i>Assets</span>
+            <div id="photoAssets" class="flex items-center gap-2 overflow-x-auto min-w-0"><span class="text-[10px] text-slate-500">No photos</span></div>
+            <div class="h-5 w-px bg-white/10 flex-shrink-0"></div>
+            <div id="soundAssets" class="flex items-center gap-2 overflow-x-auto min-w-0"><span class="text-[10px] text-slate-500">No sounds</span></div>
+        </div>
+
+        <!-- AUDIO TRACK (CapCut style): clip aligned with the frames above; tap = select, white handles = trim, drag = move -->
+        <div id="audioRow" class="bg-slate-950/80 border-t border-white/5 px-3 py-2 flex items-center gap-3">
+            <div id="audioSide" class="w-16 flex-shrink-0 flex flex-col gap-1">
+                <label class="h-[22px] glass-btn rounded-lg text-slate-200 text-[9px] font-bold cursor-pointer flex items-center justify-center gap-1 px-1 overflow-hidden" title="Audio">
+                    <i class="fas fa-music text-[9px] text-indigo-300"></i><span id="lblLoadAudio" class="truncate">Audio File</span>
+                    <input type="file" id="audioInput" accept="audio/*" class="hidden">
+                </label>
+                    <input type="file" id="audioCaptureInput" accept="audio/*" capture="user" class="hidden">
+                <button id="btnRecordAudio" class="h-[22px] glass-btn rounded-lg text-rose-300 text-[9px] font-bold flex items-center justify-center gap-1 px-1 overflow-hidden">
+                    <i class="fas fa-microphone text-[9px]" id="micIcon"></i><span id="lblRecord" class="truncate">Record Mic</span>
+                </button>
+            </div>
+            <div class="relative flex-1 min-w-0">
+                <div id="audioScroll" class="h-16 overflow-x-auto overflow-y-hidden relative rounded-xl bg-white/[0.04] border border-white/5">
+                    <div id="audioInner" class="relative h-full">
+                        <div id="audioClip" class="aud-clip hidden">
+                            <canvas id="audWave" class="absolute inset-0" style="width:100%;height:100%"></canvas>
+                            <span id="audClipLabel" class="absolute top-0.5 left-6 text-[10px] font-bold text-white pointer-events-none whitespace-nowrap" style="text-shadow:0 1px 2px rgba(0,0,0,.7)"></span>
+                            <div id="audHL" class="aud-h"></div>
+                            <div id="audHR" class="aud-h"></div>
+                        </div>
+                    </div>
+                </div>
+                <div id="noAudioMsg" class="absolute inset-0 px-3 flex items-center text-[11px] text-slate-400 italic pointer-events-none">
+                    <i class="fas fa-info-circle mr-1.5 text-indigo-400"></i><span id="lblNoAudio">No audio</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- AUDIO TOOLBAR (appears when the clip is selected, like CapCut) -->
+        <div id="audioToolbar" class="hidden px-3 pb-2 bg-slate-950/80">
+            <div class="flex items-center gap-1.5 overflow-x-auto">
+                <button id="abVol" class="ab-btn glass-btn"><i class="fas fa-volume-up"></i><span id="lblAbVol">Громкость</span></button>
+                <button id="abFade" class="ab-btn glass-btn"><i class="fas fa-wave-square"></i><span id="lblAbFade">Выцветание</span></button>
+                <button id="btnAudPreview" class="ab-btn glass-btn"><i class="fas fa-play"></i><span id="lblAudPreview">Прослушать</span></button>
+                <button id="abDel" class="ab-btn glass-btn text-rose-300"><i class="fas fa-trash-alt"></i><span id="lblAbDel">Удалить</span></button>
+                <button id="abDone" class="ab-btn glossy-gradient-primary text-white"><i class="fas fa-check"></i><span id="lblAbDone">Готово</span></button>
+            </div>
+            <div id="audSub" class="hidden mt-1.5 glass-panel rounded-xl px-3 py-2 space-y-1">
+                <div id="subVol">
+                    <div class="flex justify-between text-xs text-slate-300"><span id="lblAudVol">Громкость</span><b id="valAudVol">100%</b></div>
+                    <input id="audVol" type="range" class="aud-range" min="0" max="200" step="5" value="100">
+                </div>
+                <div id="subFade" class="hidden space-y-1">
+                    <div>
+                        <div class="flex justify-between text-xs text-slate-300"><span id="lblFadeIn">Появление</span><b id="valFadeIn">0.0</b></div>
+                        <input id="audFadeIn" type="range" class="aud-range" min="0" max="1" step="0.1" value="0">
+                    </div>
+                    <div>
+                        <div class="flex justify-between text-xs text-slate-300"><span id="lblFadeOut">Затухание</span><b id="valFadeOut">0.0</b></div>
+                        <input id="audFadeOut" type="range" class="aud-range" min="0" max="1" step="0.1" value="0">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- INDIVIDUAL FRAME CONTEXT OPTIONS MODAL -->
+    <div id="frameOptionModal" class="hidden fixed inset-0 bg-black/70 backdrop-blur-md z-[150] flex items-center justify-center">
+        <div class="glass-panel border border-white/20 p-5 rounded-3xl w-80 shadow-2xl space-y-2">
+            <div class="flex justify-between items-center border-b border-white/10 pb-2 mb-3">
+                <h3 id="lblFrameOptsTitle" class="text-xs font-extrabold text-slate-200 uppercase tracking-wider">Frame Options</h3>
+                <button id="closeFrameModal" class="text-slate-400 hover:text-white"><i class="fas fa-times"></i></button>
+            </div>
+
+            <button id="btnCopyAhead" class="w-full text-left px-3.5 py-2.5 text-xs font-semibold text-slate-100 hover:bg-indigo-600/50 rounded-xl transition flex items-center space-x-2.5">
+                <i class="fas fa-arrow-right text-indigo-400"></i>
+                <span id="lblCopyAhead">Copy frame forward</span>
+            </button>
+
+            <button id="btnCopyToEnd" class="w-full text-left px-3.5 py-2.5 text-xs font-semibold text-slate-100 hover:bg-indigo-600/50 rounded-xl transition flex items-center space-x-2.5">
+                <i class="fas fa-step-forward text-emerald-400"></i>
+                <span id="lblCopyToEnd">Copy to last frame</span>
+            </button>
+
+            <button id="btnDeleteSingleFrame" class="w-full text-left px-3.5 py-2.5 text-xs font-bold text-rose-300 hover:bg-rose-900/50 rounded-xl transition flex items-center space-x-2.5">
+                <i class="fas fa-trash-alt text-rose-400"></i>
+                <span id="lblDeleteFrame">Delete Frame</span>
+            </button>
+        </div>
+    </div>
+
+
+    <!-- IMAGE SHEET (double-tap an image in the Assets shelf): length in frames, size, rotation - for the CURRENT frame only -->
+    <div id="imgModal" class="hidden fixed left-0 right-0 bottom-0 z-[160] flex justify-center px-2 pb-2" style="pointer-events:none">
+        <div class="glass-panel border border-white/20 p-3 rounded-2xl shadow-2xl w-full max-w-md space-y-2" style="pointer-events:auto">
+            <div class="flex justify-between items-center">
+                <div class="flex items-center gap-2 min-w-0">
+                    <img id="imgModalThumb" alt="" class="w-7 h-7 rounded-lg object-cover flex-shrink-0">
+                    <h3 id="imgModalName" class="text-xs font-extrabold text-slate-200 truncate"></h3>
+                </div>
+                <button id="imgModalClose" class="text-slate-300 hover:text-white w-8 h-8 flex items-center justify-center"><i class="fas fa-times"></i></button>
+            </div>
+            <div>
+                <div class="flex justify-between text-[11px] font-bold text-cyan-200"><span id="lblImgFrames">Сколько кадров</span><b id="valImgLen">1</b></div>
+                <div class="flex items-center gap-2">
+                    <button id="imgLenMinus" type="button" class="w-9 h-9 glass-btn rounded-xl text-slate-100 flex items-center justify-center flex-shrink-0"><i class="fas fa-minus text-xs"></i></button>
+                    <input id="imgLen" type="range" class="aud-range flex-1" min="1" max="60" step="1" value="1">
+                    <button id="imgLenPlus" type="button" class="w-9 h-9 glass-btn rounded-xl text-slate-100 flex items-center justify-center flex-shrink-0"><i class="fas fa-plus text-xs"></i></button>
+                </div>
+            </div>
+            <div>
+                <div class="flex justify-between text-[11px] font-bold text-slate-200"><span id="lblImgSize">Размер</span><b id="valImgSize">100%</b></div>
+                <input id="imgSize" type="range" class="aud-range w-full" min="5" max="400" step="1" value="100">
+            </div>
+            <div>
+                <div class="flex justify-between text-[11px] font-bold text-slate-200"><span id="lblImgRot">Поворот</span><b id="valImgRot">0°</b></div>
+                <input id="imgRot" type="range" class="aud-range w-full" min="-180" max="180" step="1" value="0">
+            </div>
+            <div id="lblImgHint" class="text-[10px] text-slate-400 leading-tight">Кадры считаются с текущего. Размер и поворот — только для этого кадра.</div>
+            <div class="flex gap-2">
+                <button id="btnImgRemoveHere" type="button" class="flex-1 px-2 py-2 glass-btn rounded-xl text-[11px] font-bold text-amber-200 flex items-center justify-center gap-1"><i class="fas fa-eraser"></i><span id="lblImgRemoveHere">Убрать с кадра</span></button>
+                <button id="btnImgDeleteAll" type="button" class="flex-1 px-2 py-2 glossy-gradient-danger rounded-xl text-[11px] font-bold text-white flex items-center justify-center gap-1"><i class="fas fa-trash-alt"></i><span id="lblImgDeleteAll">Удалить везде</span></button>
+            </div>
+        </div>
+    </div>
+
+    <!-- EXPORT PROGRESS OVERLAY: blocks everything except the Stop button -->
+    <div id="exportOverlay" class="hidden fixed inset-0 z-[300] bg-black/85 backdrop-blur-md flex items-center justify-center p-5">
+        <div class="glass-panel rounded-3xl p-5 w-full max-w-sm space-y-4">
+            <h3 id="lblExportTitle" class="text-sm font-extrabold text-slate-100 text-center tracking-wide">Экспорт видео</h3>
+            <canvas id="exportPreview" width="480" height="270" class="w-full rounded-xl border border-white/15 bg-white"></canvas>
+            <div class="h-3 rounded-full bg-slate-800 overflow-hidden border border-white/10">
+                <div id="exportBar" class="h-full glossy-gradient-primary" style="width:0%"></div>
+            </div>
+            <div class="flex items-end justify-between">
+                <span id="exportPercent" class="text-3xl font-black text-white">0%</span>
+                <span id="exportInfo" class="text-xs text-slate-300 text-right"></span>
+            </div>
+            <button id="btnStopExport" class="w-full py-3 glossy-gradient-danger text-white rounded-2xl font-extrabold text-sm flex items-center justify-center gap-2">
+                <i class="fas fa-stop"></i><span id="lblStopExport">Стоп экспорт</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- JAVASCRIPT ENGINE -->
+    <script>
+        // TRANSLATION DICTIONARY
+        const I18N = {
+            RU: {
+                Onion: "Шелуха",
+                Export: "Экспорт",
+                NewFrame: "+ Кадр",
+                CopyLast: "Копировать последний",
+                AudioFile: "Аудио файл",
+                Record: "Запись",
+                NoAudio: "Звука нет",
+                FrameOpts: "Опции кадра",
+                CopyAhead: "Копировать этот кадр (вперёд)",
+                CopyToEnd: "Копировать на последний кадр",
+                DeleteFrame: "Удалить этот кадр",
+                PhotoEdit: "Тяни — двигать · 2 пальца — размер и поворот · двойное зажатие — крутить",
+                ExportTitle: "Экспорт видео", AudTitle: "Звук", AudStart: "Начало", AudLength: "Длительность", AudVolume: "Громкость", AudPreview: "Прослушать", AudStopPrev: "Стоп", AudReset: "Сброс", AudDone: "Готово", ThemeTip: "Liquid Glass вкл/выкл", ExportPrep: "Подготовка…", StopExport: "Стоп экспорт", ExportLeft: "Осталось", ExportFrame: "Кадр", ExportSec: "с",
+                ToolSize: "Размер инструмента",
+                SelectRGB: "Выбор цвета RGB",
+                MultiSelectBtn: "Выбор кадров",
+                SelectedCount: "Выбрано кадров:",
+                CopyMulti: "Скопировать",
+                DeleteMulti: "Удалить"
+            },
+            AZ: {
+                Onion: "Soğan qabığı",
+                Export: "Eksport",
+                NewFrame: "+ Kadr",
+                CopyLast: "Sonuncu kadru kopyala",
+                AudioFile: "Səs faylı",
+                Record: "Səs yaz",
+                NoAudio: "Səs yoxdur",
+                FrameOpts: "Kadr seçimləri",
+                CopyAhead: "Bu kadru kopyala (irəli)",
+                CopyToEnd: "Sonuncu kadra kopyala",
+                DeleteFrame: "Kadru sil",
+                PhotoEdit: "Sürüşdür — yerini dəyiş · 2 barmaq — ölçü və döndərmə · ikiqat basıb saxla — fırlat",
+                ExportTitle: "Video eksportu", AudTitle: "Səs", AudStart: "Başlanğıc", AudLength: "Müddət", AudVolume: "Səs səviyyəsi", AudPreview: "Dinlə", AudStopPrev: "Dayandır", AudReset: "Sıfırla", AudDone: "Hazır", ThemeTip: "Liquid Glass aç/bağla", ExportPrep: "Hazırlanır…", StopExport: "Eksportu dayandır", ExportLeft: "Qalıb", ExportFrame: "Kadr", ExportSec: "san",
+                ToolSize: "Alət ölçüsü",
+                SelectRGB: "RGB Rəng seçimi",
+                MultiSelectBtn: "Kadrları seç",
+                SelectedCount: "Seçilmiş kadrlar:",
+                CopyMulti: "Kopyala",
+                DeleteMulti: "Sil"
+            },
+            EN: {
+                Onion: "Onion Skin",
+                Export: "Export",
+                NewFrame: "+ Frame",
+                CopyLast: "Copy & Paste Last",
+                AudioFile: "Audio File",
+                Record: "Record Mic",
+                NoAudio: "No audio",
+                FrameOpts: "Frame Options",
+                CopyAhead: "Copy frame forward",
+                CopyToEnd: "Copy to last frame",
+                DeleteFrame: "Delete Frame",
+                PhotoEdit: "Drag to move · 2 fingers to resize and rotate · double-tap and hold to spin",
+                ExportTitle: "Exporting video", AudTitle: "Sound", AudStart: "Start", AudLength: "Length", AudVolume: "Volume", AudPreview: "Preview", AudStopPrev: "Stop", AudReset: "Reset", AudDone: "Done", ThemeTip: "Liquid Glass on/off", ExportPrep: "Preparing…", StopExport: "Stop export", ExportLeft: "Left", ExportFrame: "Frame", ExportSec: "s",
+                ToolSize: "Tool Size",
+                SelectRGB: "RGB Color Picker",
+                MultiSelectBtn: "Select Frames",
+                SelectedCount: "Selected frames:",
+                CopyMulti: "Copy",
+                DeleteMulti: "Delete"
+            }
+        };
+
+        Object.assign(I18N.RU, { PhotoFrames: "Кадров", PhotoDone: "Готово", AudFade: "Выцветание", AudFadeIn: "Появление", AudFadeOut: "Затухание", AudDelete: "Удалить",
+            PhotoEdit: "Двойной тап по картинке — выбрать · тяни — двигать · 2 пальца или угол ⟳ — размер и поворот · ✕ — убрать" });
+        Object.assign(I18N.AZ, { PhotoFrames: "Kadr sayı", PhotoDone: "Hazır", AudFade: "Solma", AudFadeIn: "Giriş solması", AudFadeOut: "Çıxış solması", AudDelete: "Sil",
+            PhotoEdit: "Şəkilə iki dəfə toxun — seç · sürüşdür — yerini dəyiş · 2 barmaq və ya künc ⟳ — ölçü və döndərmə · ✕ — sil" });
+        Object.assign(I18N.RU, { ImgFrames: "Сколько кадров", ImgSize: "Размер", ImgRot: "Поворот", ImgHint: "Кадры считаются с текущего. Размер и поворот — только для этого кадра.", ImgRemoveHere: "Убрать с кадра", ImgDeleteAll: "Удалить везде" });
+        Object.assign(I18N.AZ, { ImgFrames: "Neçə kadr", ImgSize: "Ölçü", ImgRot: "Fırlatma", ImgHint: "Kadrlar cari kadrdan sayılır. Ölçü və fırlatma yalnız bu kadr üçündür.", ImgRemoveHere: "Kadrdan sil", ImgDeleteAll: "Hər yerdən sil" });
+        Object.assign(I18N.EN, { ImgFrames: "How many frames", ImgSize: "Size", ImgRot: "Rotation", ImgHint: "Frames count from the current one. Size and rotation affect this frame only.", ImgRemoveHere: "Remove from frame", ImgDeleteAll: "Delete everywhere" });
+        Object.assign(I18N.EN, { PhotoFrames: "Frames", PhotoDone: "Done", AudFade: "Fade", AudFadeIn: "Fade in", AudFadeOut: "Fade out", AudDelete: "Delete",
+            PhotoEdit: "Double-tap the picture to select · drag to move · 2 fingers or the ⟳ corner to resize and rotate · ✕ to remove" });
+
+        let currentLang = "RU";
+
+        // APP STATE
+        let fps = 12;
+        let frames = [];
+        let currentFrameIdx = 0;
+        let isPlaying = false;
+        let playInterval = null;
+        let onionSkinActive = true;
+        let currentTool = 'brush';
+        let brushSize = 5;
+        let brushColor = { r: 0, g: 0, b: 0 };
+        let bgColor = { r: 255, g: 255, b: 255 };
+
+        // Multi-select state
+        let isMultiSelectActive = false;
+        let selectedFrameIndices = new Set();
+
+        // Audio state
+        let audioBuffer = null;
+        let audioSettings = { start: 0, len: 0, vol: 1 };
+        let previewSrc = null, previewGain = null;
+        const wavePeakCache = new Map();
+        let audioContext = null;
+        function getAudioContext() {
+            if (!audioContext) {
+                const AudioCtor = window.AudioContext || window.webkitAudioContext;
+                if (!AudioCtor) throw new Error('Web Audio API is not supported');
+                audioContext = new AudioCtor();
+            }
+            return audioContext;
+        }
+        let audioSourceNode = null;
+        let mediaRecorder = null;
+        let recordedAudioChunks = [];
+        let isRecording = false;
+
+        // Image Editing State (v2-6)
+        // Every frame keeps its OWN copy of a picture: frameLayers[i] = [{ aid, cx, cy, scale, rot }, ...].
+        // Changing it on one frame never touches the other frames.
+        let frameLayers = [[]];
+        let selAid = null;             // asset id of the selected picture on the CURRENT frame
+        let nextAssetId = 1;
+        let imgModalAid = null, imgModalBase = 0, autoBlank = null, imgSliderActive = null;
+        const assetStore = new Map();  // assetId -> asset (kept even when a chip is removed, so undo works)
+        let drawStart = null, lastTap = null;
+        const photoPointers = new Map();
+        let isExporting = false;
+        let activeColorTarget = 'brush';
+        let histStack = [];
+        let histPos = -1;
+        let exportAbort = null;
+        let frameLoading = false;
+        let loadToken = 0;
+        let photoAssets = [];
+        let soundAssetName = "";
+        let pointerDownPos = null;
+        let lastPointerPos = null;
+        let resizeObserver = null;
+
+        let targetFrameIdx = null;
+
+        // DOM Elements
+        const mainCanvas = document.getElementById('mainCanvas');
+        const ctx = mainCanvas.getContext('2d', { willReadFrequently: true });
+        const onionCanvas = document.getElementById('onionCanvas');
+        const onionCtx = onionCanvas.getContext('2d');
+        const canvasWrapper = document.getElementById('canvasWrapper');
+        const photoCanvas = document.getElementById('photoCanvas');
+        const photoCtx = photoCanvas.getContext('2d');
+        const selCanvas = document.getElementById('selCanvas');
+        const selCtx = selCanvas.getContext('2d');
+        const byId = (id) => document.getElementById(id);
+
+        window.onload = () => {
+            setupCanvasDimensions();
+            let theme = 'liquid';
+            try { theme = localStorage.getItem('zrTheme') || 'liquid'; } catch (_) {}
+            document.documentElement.setAttribute('data-theme', theme);
+            frames = [makeBlankFrame()];
+            frameLayers = [[]];
+            currentFrameIdx = 0;
+            loadFrameState(0);
+            recordHistory();
+            updateLanguageUI();
+            setupEventListeners();
+            renderTimeline();
+            renderAssetsShelf();
+            if ('ResizeObserver' in window) {
+                resizeObserver = new ResizeObserver(() => fitCanvasToContainer());
+                resizeObserver.observe(document.getElementById('canvasContainer'));
+            } else {
+                window.addEventListener('resize', fitCanvasToContainer);
+            }
+        };
+
+        function setupCanvasDimensions() {
+            // Keep a stable 16:9 drawing resolution; CSS scales it for each screen.
+            const width = 960, height = 540;
+            mainCanvas.width = width;
+            mainCanvas.height = height;
+            onionCanvas.width = width;
+            onionCanvas.height = height;
+            photoCanvas.width = width;
+            photoCanvas.height = height;
+            selCanvas.width = width;
+            selCanvas.height = height;
+            canvasWrapper.style.width = 'min(100%, 960px)';
+            canvasWrapper.style.aspectRatio = '16 / 9';
+            mainCanvas.style.width = '100%';
+            mainCanvas.style.height = '100%';
+            onionCanvas.style.width = '100%';
+            onionCanvas.style.height = '100%';
+            fitCanvasToContainer();
+            fillCanvasBackground();
+            applyBgToUI();
+        }
+
+        function fitCanvasToContainer() {
+            const container = document.getElementById('canvasContainer');
+            if (!container || !canvasWrapper) return;
+            const availableW = Math.max(120, container.clientWidth - 20);
+            const availableH = Math.max(100, container.clientHeight - 20);
+            const scale = Math.min(availableW / mainCanvas.width, availableH / mainCanvas.height, 1);
+            canvasWrapper.style.width = `${Math.floor(mainCanvas.width * scale)}px`;
+            canvasWrapper.style.height = `${Math.floor(mainCanvas.height * scale)}px`;
+            renderLayers();
+            renderAudioLane();
+        }
+
+        // Frames are transparent: the background colour is a separate layer, so it can change any time
+        // and the onion skin shows only the previous drawing.
+        function fillCanvasBackground() {
+            ctx.globalCompositeOperation = 'source-over';
+            ctx.clearRect(0, 0, mainCanvas.width, mainCanvas.height);
+        }
+
+        function applyBgToUI() {
+            const c = `rgb(${bgColor.r}, ${bgColor.g}, ${bgColor.b})`;
+            document.documentElement.style.setProperty('--canvas-bg', c);
+            const b = document.getElementById('btnBgColor');
+            if (b) b.style.backgroundColor = c;
+            drawOnionSkin();
+        }
+
+        // FRAME & TIMELINE LOGIC
+        function makeBlankFrame() {
+            const tempCanvas = document.createElement('canvas');
+            tempCanvas.width = mainCanvas.width;
+            tempCanvas.height = mainCanvas.height;
+            const tempCtx = tempCanvas.getContext('2d');
+            return tempCanvas.toDataURL();
+        }
+
+        function saveCurrentFrameState() {
+            // While a frame is still loading the canvas is stale, so never save it over the real frame.
+            if (frameLoading || isExporting) return;
+            if (frames.length > 0 && currentFrameIdx < frames.length) {
+                frames[currentFrameIdx] = mainCanvas.toDataURL();
+            }
+        }
+
+        function loadFrameState(index) {
+            if (index < 0 || index >= frames.length) return;
+            currentFrameIdx = index;
+            if (selAid !== null && !instOf(index, selAid)) deselectLayer();
+            if (imgModalAid !== null) { if (instOf(index, imgModalAid)) { imgModalBase = frames.length; autoBlank = null; syncImgModal(true); } else closeImgModal(); }
+            renderLayers();
+            const token = ++loadToken;
+            frameLoading = true;
+            // Timeline updates immediately, so the new frame shows up even before its image decodes.
+            if (isPlaying) updateActiveCard(); else renderTimeline();
+            const img = new Image();
+            img.onload = () => {
+                if (token !== loadToken) return;
+                ctx.globalCompositeOperation = 'source-over';
+                ctx.clearRect(0, 0, mainCanvas.width, mainCanvas.height);
+                fillCanvasBackground();
+                ctx.drawImage(img, 0, 0);
+                frameLoading = false;
+                drawOnionSkin();
+            };
+            img.onerror = () => { if (token === loadToken) frameLoading = false; };
+            img.src = frames[index];
+        }
+
+        function createNewFrame(duplicateFromIndex = null) {
+            if (isExporting) return;
+            commitPhoto();
+            if (isPlaying) stopAnimation();
+            saveCurrentFrameState();
+            const newFrameData = (duplicateFromIndex !== null && frames[duplicateFromIndex])
+                ? frames[duplicateFromIndex]
+                : makeBlankFrame();
+            frames.splice(currentFrameIdx + 1, 0, newFrameData);
+            frameLayers.splice(currentFrameIdx + 1, 0, (duplicateFromIndex !== null && frameLayers[duplicateFromIndex]) ? cloneList(frameLayers[duplicateFromIndex]) : []);
+            loadFrameState(currentFrameIdx + 1);
+            recordHistory();
+        }
+
+        function drawOnionSkin() {
+            onionCtx.clearRect(0, 0, onionCanvas.width, onionCanvas.height);
+            if (!onionSkinActive || currentFrameIdx === 0) return;
+            const idx = currentFrameIdx;
+            const prevImg = new Image();
+            prevImg.onload = () => {
+                if (idx !== currentFrameIdx) return;
+                onionCtx.clearRect(0, 0, onionCanvas.width, onionCanvas.height);
+                onionCtx.globalCompositeOperation = 'source-over';
+                onionCtx.drawImage(prevImg, 0, 0);
+                // Flat tint that always contrasts with the background (black lines vanish on dark backgrounds).
+                const lum = 0.299 * bgColor.r + 0.587 * bgColor.g + 0.114 * bgColor.b;
+                onionCtx.globalCompositeOperation = 'source-in';
+                onionCtx.fillStyle = lum > 140 ? '#2f6bff' : '#ffd24a';
+                onionCtx.fillRect(0, 0, onionCanvas.width, onionCanvas.height);
+                onionCtx.globalCompositeOperation = 'source-over';
+            };
+            prevImg.src = frames[idx - 1];
+        }
+
+        function cardClass(idx) {
+            const isSelected = selectedFrameIndices.has(idx);
+            const isActive = idx === currentFrameIdx;
+            return `relative flex-shrink-0 w-16 h-24 rounded-2xl border-2 overflow-hidden cursor-pointer transition-all flex flex-col justify-between p-1 glass-btn ${
+                isSelected ? 'border-amber-400 glow-active scale-105' :
+                isActive ? 'border-indigo-500 scale-105 shadow-xl' : 'border-white/10 opacity-70'
+            }`;
+        }
+
+        function scrollActiveCardIntoView() {
+            const track = document.getElementById('framesTrack');
+            const card = track.children[currentFrameIdx];
+            if (!card) return;
+            const tr = track.getBoundingClientRect(), cr = card.getBoundingClientRect();
+            track.scrollLeft += (cr.left - tr.left) - (tr.width - cr.width) / 2;
+        }
+
+        function updateActiveCard() {
+            const track = document.getElementById('framesTrack');
+            Array.from(track.children).forEach((c, i) => { c.className = cardClass(i); });
+            scrollActiveCardIntoView();
+        }
+
+        function updateThumb(idx) {
+            const card = document.getElementById('framesTrack').children[idx];
+            const img = card && card.querySelector('img');
+            if (img) img.src = frames[idx]; else renderTimeline();
+        }
+
+        function renderTimeline() {
+            const track = document.getElementById('framesTrack');
+            track.innerHTML = '';
+
+            frames.forEach((frameData, idx) => {
+                const card = document.createElement('div');
+                const isSelected = selectedFrameIndices.has(idx);
+                card.className = cardClass(idx);
+
+                const img = document.createElement('img');
+                img.src = frameData;
+                img.className = 'w-full h-16 object-contain rounded-xl pointer-events-none frame-thumb';
+
+                const bottomBar = document.createElement('div');
+                bottomBar.className = 'flex items-center justify-between px-1';
+
+                const num = document.createElement('span');
+                num.className = 'text-[10px] font-extrabold text-slate-200';
+                num.innerText = `${idx + 1}`;
+
+                if (isMultiSelectActive) {
+                    const check = document.createElement('i');
+                    check.className = `fas fa-check-circle text-xs ${isSelected ? 'text-amber-400' : 'text-slate-600'}`;
+                    bottomBar.appendChild(check);
+                }
+
+                bottomBar.appendChild(num);
+                card.appendChild(img);
+                card.appendChild(bottomBar);
+                if ((frameLayers[idx] || []).length) {
+                    const badge = document.createElement('div');
+                    badge.className = 'absolute top-1 left-1 w-4 h-4 rounded-full bg-cyan-500/90 flex items-center justify-center pointer-events-none';
+                    badge.innerHTML = '<i class="fas fa-image" style="font-size:8px;color:#fff"></i>';
+                    card.appendChild(badge);
+                }
+
+                card.onclick = () => {
+                    if (isMultiSelectActive) {
+                        if (selectedFrameIndices.has(idx)) selectedFrameIndices.delete(idx);
+                        else selectedFrameIndices.add(idx);
+                        updateMultiSelectBar();
+                        renderTimeline();
+                    } else {
+                        if (isPlaying) stopAnimation();
+                        saveCurrentFrameState();
+                        loadFrameState(idx);
+                    }
+                };
+
+                // LONG PRESS CONTEXT MENU
+                let pressTimer;
+                const startPress = () => {
+                    clearTimeout(pressTimer);
+                    pressTimer = setTimeout(() => {
+                        if (!isMultiSelectActive) {
+                            targetFrameIdx = idx;
+                            openFrameOptionsModal();
+                        }
+                    }, 450);
+                };
+                const cancelPress = () => clearTimeout(pressTimer);
+
+                card.addEventListener('touchstart', startPress, { passive: true });
+                card.addEventListener('touchend', cancelPress);
+                card.addEventListener('touchmove', cancelPress, { passive: true });
+                card.addEventListener('mousedown', startPress);
+                card.addEventListener('mouseup', cancelPress);
+                card.addEventListener('mouseleave', cancelPress);
+
+                track.appendChild(card);
+            });
+            scrollActiveCardIntoView();
+            renderAudioLane();
+        }
+
+        // HISTORY (undo / redo): snapshots of the frames list; frame images are shared strings, so it is cheap.
+        function recordHistory() {
+            histStack.length = histPos + 1;
+            histStack.push({ frames: frames.slice(), idx: currentFrameIdx, layers: frameLayers.map(cloneList) });
+            if (histStack.length > 60) histStack.shift();
+            histPos = histStack.length - 1;
+            updateHistoryButtons();
+        }
+        function updateHistoryButtons() {
+            const u = document.getElementById('btnUndo'), r = document.getElementById('btnRedo');
+            if (!u || !r) return;
+            u.classList.toggle('hist-off', histPos <= 0);
+            r.classList.toggle('hist-off', histPos >= histStack.length - 1);
+        }
+        function restoreHistory(pos) {
+            const snap = histStack[pos];
+            if (!snap) return;
+            histPos = pos;
+            frames = snap.frames.slice();
+            frameLayers = snap.layers.map(cloneList);
+            frameLayers.forEach(l => l.forEach(o => { const a = assetStore.get(o.aid); if (a && !photoAssets.includes(a)) photoAssets.push(a); }));
+            renderAssetsShelf();
+            closeImgModal();
+            deselectLayer();
+            selectedFrameIndices.clear();
+            updateMultiSelectBar();
+            loadFrameState(Math.min(snap.idx, frames.length - 1));
+            updateHistoryButtons();
+        }
+        function undo() {
+            if (isExporting || isDrawing) return;
+            if (isPlaying) stopAnimation();
+            if (histPos > 0) restoreHistory(histPos - 1);
+        }
+        function redo() {
+            if (isExporting || isDrawing) return;
+            if (isPlaying) stopAnimation();
+            if (histPos < histStack.length - 1) restoreHistory(histPos + 1);
+        }
+
+        // PLAYBACK ENGINE
+        function startAnimation() {
+            if (frames.length === 0 || isExporting) return;
+            commitPhoto();
+            saveCurrentFrameState();
+            isPlaying = true;
+            document.getElementById('playIcon').className = "fas fa-pause text-xs";
+
+            if (audioBuffer) playAudioTrack();
+
+            const intervalMs = 1000 / fps;
+            playInterval = setInterval(() => {
+                loadFrameState((currentFrameIdx + 1) % frames.length);
+            }, intervalMs);
+        }
+
+        function stopAnimation() {
+            isPlaying = false;
+            document.getElementById('playIcon').className = "fas fa-play text-xs";
+            if (playInterval) clearInterval(playInterval);
+            playInterval = null;
+            if (audioSourceNode) {
+                try { audioSourceNode.stop(); } catch(e){}
+            }
+            renderTimeline();
+        }
+
+        // DRAWING LOGIC
+        let isDrawing = false;
+
+        function getCanvasCoords(e) {
+            const rect = mainCanvas.getBoundingClientRect();
+            return {
+                x: Math.max(0, Math.min(mainCanvas.width - 1, (e.clientX - rect.left) * mainCanvas.width / rect.width)),
+                y: Math.max(0, Math.min(mainCanvas.height - 1, (e.clientY - rect.top) * mainCanvas.height / rect.height))
+            };
+        }
+
+        let activePointerId = null;
+        let drawLastPt = null, drawLastMid = null;
+
+        function applyBrushStyle() {
+            ctx.globalCompositeOperation = currentTool === 'eraser' ? 'destination-out' : 'source-over';
+            const c = `rgb(${brushColor.r}, ${brushColor.g}, ${brushColor.b})`;
+            ctx.strokeStyle = c;
+            ctx.fillStyle = c;
+            ctx.lineWidth = Number(brushSize);
+            ctx.lineCap = 'round';
+            ctx.lineJoin = 'round';
+        }
+
+        function startDraw(e) {
+            if (e.button !== undefined && e.button > 0) return;
+            if (isExporting) return;
+            if (isPlaying) stopAnimation();
+            if (frameLoading || isDrawing) return;
+            const p = getCanvasCoords(e);
+            const nowT = performance.now();
+            // Double tap on a picture = SELECT it (never a copy). The dot/fill of the first tap is rolled back.
+            const lt = lastTap; lastTap = null;
+            if (lt && nowT - lt.t < 380 && Math.hypot(p.x - lt.x, p.y - lt.y) < 40 * cssK()) {
+                const gid = layerAt(p, currentFrameIdx);
+                if (gid !== null) {
+                    if (lt.hp >= 1 && lt.hp === histPos) { const pos = histPos - 1; histStack.length = pos + 1; restoreHistory(pos); }
+                    selectLayer(gid);
+                    e.preventDefault();
+                    return;
+                }
+            }
+            drawStart = { t: nowT, x: p.x, y: p.y };
+            if (currentTool === 'fillerase') {
+                let did = false;
+                if (floodErase(Math.floor(p.x), Math.floor(p.y))) {
+                    saveCurrentFrameState();
+                    updateThumb(currentFrameIdx);
+                    recordHistory();
+                    did = true;
+                }
+                lastTap = { t: nowT, x: p.x, y: p.y, hp: did ? histPos : -1 };
+                e.preventDefault();
+                return;
+            }
+            if (currentTool === 'fill') {
+                floodFill(Math.floor(p.x), Math.floor(p.y), `rgb(${brushColor.r},${brushColor.g},${brushColor.b})`);
+                saveCurrentFrameState();
+                updateThumb(currentFrameIdx);
+                recordHistory();
+                lastTap = { t: nowT, x: p.x, y: p.y, hp: histPos };
+                e.preventDefault();
+                return;
+            }
+            isDrawing = true;
+            activePointerId = e.pointerId;
+            try { mainCanvas.setPointerCapture(e.pointerId); } catch (_) {}
+            applyBrushStyle();
+            ctx.beginPath();
+            ctx.arc(p.x, p.y, Number(brushSize) / 2, 0, Math.PI * 2);
+            ctx.fill();
+            drawLastPt = p;
+            drawLastMid = p;
+            e.preventDefault();
+        }
+
+        // Smooth line: curve through midpoints of every pair of points, drawn segment by segment
+        // (no re-stroking of the whole path, so it stays fast and fluid).
+        function draw(e) {
+            if (!isDrawing || e.pointerId !== activePointerId) return;
+            applyBrushStyle();
+            let evs = e.getCoalescedEvents ? e.getCoalescedEvents() : [];
+            if (!evs.length) evs = [e];
+            for (const ev of evs) {
+                const p = getCanvasCoords(ev);
+                const mid = { x: (drawLastPt.x + p.x) / 2, y: (drawLastPt.y + p.y) / 2 };
+                ctx.beginPath();
+                ctx.moveTo(drawLastMid.x, drawLastMid.y);
+                ctx.quadraticCurveTo(drawLastPt.x, drawLastPt.y, mid.x, mid.y);
+                ctx.stroke();
+                drawLastPt = p;
+                drawLastMid = mid;
+            }
+            e.preventDefault();
+        }
+
+        function stopDraw(e) {
+            if (!isDrawing) return;
+            if (e && e.pointerId !== undefined && e.pointerId !== activePointerId) return;
+            isDrawing = false;
+            activePointerId = null;
+            applyBrushStyle();
+            ctx.beginPath();
+            ctx.moveTo(drawLastMid.x, drawLastMid.y);
+            ctx.lineTo(drawLastPt.x, drawLastPt.y);
+            ctx.stroke();
+            ctx.globalCompositeOperation = 'source-over';
+            saveCurrentFrameState();
+            updateThumb(currentFrameIdx);
+            recordHistory();
+            if (drawStart && performance.now() - drawStart.t < 300 && Math.hypot(drawLastPt.x - drawStart.x, drawLastPt.y - drawStart.y) < 12 * cssK()) {
+                lastTap = { t: performance.now(), x: drawStart.x, y: drawStart.y, hp: histPos };
+            }
+            drawStart = null;
+        }
+
+        // Fill-erase: removes the connected area of the same colour under the tap (e.g. a wrong blue blob).
+        // Semi-transparent anti-aliased edge pixels of that colour go too, so no ring is left behind.
+        function floodErase(startX, startY) {
+            const w = mainCanvas.width, h = mainCanvas.height;
+            if (startX < 0 || startY < 0 || startX >= w || startY >= h) return false;
+            const image = ctx.getImageData(0, 0, w, h);
+            const d = image.data;
+            const si = (startY * w + startX) * 4;
+            if (d[si + 3] < 8) return false;               // tapped empty space: nothing to remove
+            const tr = d[si], tg = d[si + 1], tb = d[si + 2], tol = 70;
+            const match = (i) => d[i + 3] > 0 && Math.abs(d[i] - tr) <= tol &&
+                Math.abs(d[i + 1] - tg) <= tol && Math.abs(d[i + 2] - tb) <= tol;
+            const visited = new Uint8Array(w * h);
+            const queue = new Int32Array(w * h);
+            let qh = 0, qt = 0;
+            queue[qt++] = startY * w + startX; visited[startY * w + startX] = 1;
+            const removed = [];
+            while (qh < qt) {
+                const px = queue[qh++];
+                const i = px * 4;
+                if (!match(i)) continue;
+                removed.push(px);
+                const x = px % w, y = (px / w) | 0;
+                for (let dy = -1; dy <= 1; dy++) for (let dx = -1; dx <= 1; dx++) {
+                    if (!dx && !dy) continue;
+                    const nx = x + dx, ny = y + dy;
+                    if (nx < 0 || ny < 0 || nx >= w || ny >= h) continue;
+                    const q = ny * w + nx;
+                    if (visited[q]) continue;
+                    visited[q] = 1;
+                    queue[qt++] = q;
+                }
+            }
+            for (const px of removed) d[px * 4 + 3] = 0;
+            // two more passes: faint leftover edge pixels touching the removed area
+            for (let pass = 0; pass < 2; pass++) {
+                const extra = [];
+                for (const px of removed) {
+                    const x = px % w, y = (px / w) | 0;
+                    for (let dy = -1; dy <= 1; dy++) for (let dx = -1; dx <= 1; dx++) {
+                        const nx = x + dx, ny = y + dy;
+                        if (nx < 0 || ny < 0 || nx >= w || ny >= h) continue;
+                        const i = (ny * w + nx) * 4;
+                        if (d[i + 3] > 0 && d[i + 3] < 140) { d[i + 3] = 0; extra.push(ny * w + nx); }
+                    }
+                }
+                removed.length = 0;
+                for (const q of extra) removed.push(q);
+            }
+            ctx.putImageData(image, 0, 0);
+            return true;
+        }
+
+        // Contiguous flood fill: only the connected area under the tap is changed.
+        function floodFill(startX, startY, cssColor) {
+            const w = mainCanvas.width, h = mainCanvas.height;
+            if (startX < 0 || startY < 0 || startX >= w || startY >= h) return;
+            const image = ctx.getImageData(0, 0, w, h);
+            const data = image.data;
+            const start = (startY * w + startX) * 4;
+            const target = [data[start], data[start+1], data[start+2], data[start+3]];
+            const m = cssColor.match(/[\d.]+/g).map(Number);
+            const replacement = [m[0], m[1], m[2], 255];
+            if (target[0] === replacement[0] && target[1] === replacement[1] &&
+                target[2] === replacement[2] && target[3] === 255) return;
+            const tolerance = 18;
+            const matches = (i) => Math.abs(data[i]-target[0]) <= tolerance &&
+                Math.abs(data[i+1]-target[1]) <= tolerance &&
+                Math.abs(data[i+2]-target[2]) <= tolerance &&
+                Math.abs(data[i+3]-target[3]) <= tolerance;
+            const stack = [startX, startY];
+            const visited = new Uint8Array(w*h);
+            const region = [];
+            let steps = 0;
+            while (stack.length && steps < w*h) {
+                const y = stack.pop(), x = stack.pop();
+                if (x < 0 || y < 0 || x >= w || y >= h) continue;
+                const pixel = y*w+x;
+                if (visited[pixel]) continue;
+                visited[pixel] = 1;
+                const i = pixel*4;
+                if (!matches(i)) continue;
+                data[i] = replacement[0]; data[i+1] = replacement[1];
+                data[i+2] = replacement[2]; data[i+3] = replacement[3];
+                region.push(pixel);
+                stack.push(x+1,y,x-1,y,x,y+1,x,y-1);
+                steps++;
+            }
+            // Soft (anti-aliased) pixels next to the filled area: put the fill colour under them.
+            const inRegion = new Uint8Array(w*h);
+            for (let k = 0; k < region.length; k++) inRegion[region[k]] = 1;
+            const ring = new Uint8Array(w*h);
+            for (let k = 0; k < region.length; k++) {
+                const px = region[k] % w, py = (region[k] / w) | 0;
+                for (let dy = -2; dy <= 2; dy++) {
+                    for (let dx = -2; dx <= 2; dx++) {
+                        const nx = px + dx, ny = py + dy;
+                        if (nx < 0 || ny < 0 || nx >= w || ny >= h) continue;
+                        const q = ny*w+nx;
+                        if (inRegion[q] || ring[q]) continue;
+                        ring[q] = 1;
+                        const qi = q*4;
+                        const a = data[qi+3] / 255;
+                        if (a < 1) {
+                            data[qi]   = data[qi]   * a + replacement[0] * (1 - a);
+                            data[qi+1] = data[qi+1] * a + replacement[1] * (1 - a);
+                            data[qi+2] = data[qi+2] * a + replacement[2] * (1 - a);
+                            data[qi+3] = 255;
+                        }
+                    }
+                }
+            }
+            ctx.putImageData(image, 0, 0);
+        }
+
+        // PHOTO LAYERS (v2-6). Tap a picture in the Assets shelf = put it on THIS frame (or select it if it is there).
+        // Drag = move, two fingers = size + rotation, round handles: X = remove from this frame, ⟳ = rotate, ↘ = resize.
+        // Double-tap the picture in the shelf = sheet with length in frames, size, rotation, delete.
+        // Every frame has its own copy, so editing frame 2 never changes frame 1 and vice versa.
+        // The picture sits UNDER the drawing, so you can keep drawing on top of it.
+        function cssK() {
+            const r = mainCanvas.getBoundingClientRect();
+            return r.width ? mainCanvas.width / r.width : 1;
+        }
+
+        function cloneList(l) { return (l || []).map(o => Object.assign({}, o)); }
+        function assetOf(aid) { return assetStore.get(aid) || null; }
+        function instOf(idx, aid) { const l = frameLayers[idx]; return l ? (l.find(o => o.aid === aid) || null) : null; }
+        function curInst() { return selAid === null ? null : instOf(currentFrameIdx, selAid); }
+        function runLen(aid, start) { let n = 0; while (start + n < frames.length && instOf(start + n, aid)) n++; return n; }
+        function fitScale(img) { return Math.min(mainCanvas.width * .8 / img.width, mainCanvas.height * .8 / img.height); }
+
+        function handleImageImport(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = (evt) => {
+                const img = new Image();
+                img.onload = () => {
+                    const asset = { id: nextAssetId++, name: file.name, url: evt.target.result, img };
+                    assetStore.set(asset.id, asset);
+                    photoAssets.push(asset);
+                    renderAssetsShelf();
+                    addLayer(asset);
+                };
+                img.src = evt.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+
+        // Puts the picture on the current frame ONLY (one frame long; use the sheet to make it longer).
+        // If it is already on this frame, it is just selected - never duplicated.
+        function addLayer(asset) {
+            if (isExporting || !asset || !asset.img) return;
+            if (isPlaying) stopAnimation();
+            if (instOf(currentFrameIdx, asset.id)) { selectLayer(asset.id); return; }
+            saveCurrentFrameState();
+            frameLayers[currentFrameIdx].push({ aid: asset.id, cx: mainCanvas.width / 2, cy: mainCanvas.height / 2, scale: fitScale(asset.img), rot: 0 });
+            selectLayer(asset.id);
+            renderTimeline();
+            recordHistory();
+        }
+
+        function layerAt(p, idx) {
+            const list = frameLayers[idx] || [];
+            for (let i = list.length - 1; i >= 0; i--) if (hitInst(list[i], p)) return list[i].aid;
+            return null;
+        }
+
+        function hitInst(o, pt) {
+            const a = assetOf(o.aid); if (!a) return false;
+            const dx = pt.x - o.cx, dy = pt.y - o.cy, c = Math.cos(-o.rot), s = Math.sin(-o.rot);
+            const x = (dx * c - dy * s) / o.scale, y = (dx * s + dy * c) / o.scale;
+            return Math.abs(x) <= a.img.width / 2 && Math.abs(y) <= a.img.height / 2;
+        }
+
+        function instCorners(o) {
+            const a = assetOf(o.aid);
+            const hw = a.img.width / 2 * o.scale, hh = a.img.height / 2 * o.scale, c = Math.cos(o.rot), s = Math.sin(o.rot);
+            return [[-hw, -hh], [hw, -hh], [hw, hh], [-hw, hh]].map(([x, y]) => ({ x: o.cx + x * c - y * s, y: o.cy + x * s + y * c }));
+        }
+
+        function handlePoints(o) {
+            const k = cssK(), m = 24 * k, cs = instCorners(o);
+            const clamp = (p) => ({ x: Math.min(selCanvas.width - m, Math.max(m, p.x)), y: Math.min(selCanvas.height - m, Math.max(m, p.y)) });
+            const c = Math.cos(o.rot), s = Math.sin(o.rot), off = 38 * k;
+            const tm = { x: (cs[0].x + cs[1].x) / 2, y: (cs[0].y + cs[1].y) / 2 };
+            return { del: clamp(cs[0]), scl: clamp(cs[2]), rot: clamp({ x: tm.x + s * off, y: tm.y - c * off }), tm, r: 20 * k, hit: 30 * k };
+        }
+
+        function drawLayersTo(c, idx) {
+            const list = frameLayers[idx] || [];
+            for (const o of list) {
+                const a = assetOf(o.aid);
+                if (!a || !a.img) continue;
+                c.save();
+                c.translate(o.cx, o.cy);
+                c.rotate(o.rot);
+                c.scale(o.scale, o.scale);
+                c.drawImage(a.img, -a.img.width / 2, -a.img.height / 2);
+                c.restore();
+            }
+        }
+
+        function drawHandle(p, r, k, kind) {
+            selCtx.beginPath(); selCtx.arc(p.x, p.y, r, 0, Math.PI * 2);
+            selCtx.fillStyle = 'rgba(15,23,42,.92)'; selCtx.fill();
+            selCtx.lineWidth = 1.5 * k; selCtx.strokeStyle = '#fff'; selCtx.stroke();
+            selCtx.lineWidth = 2.2 * k; selCtx.lineCap = 'round'; selCtx.strokeStyle = '#fff'; selCtx.fillStyle = '#fff';
+            const a = r * .42;
+            selCtx.beginPath();
+            if (kind === 'x') {
+                selCtx.moveTo(p.x - a, p.y - a); selCtx.lineTo(p.x + a, p.y + a);
+                selCtx.moveTo(p.x + a, p.y - a); selCtx.lineTo(p.x - a, p.y + a);
+                selCtx.stroke();
+            } else if (kind === 'scl') {
+                const b = a * .85;
+                selCtx.moveTo(p.x - b, p.y - b); selCtx.lineTo(p.x + b, p.y + b); selCtx.stroke();
+                [[1, 1], [-1, -1]].forEach(([sx, sy]) => {
+                    const tx = p.x + sx * b, ty = p.y + sy * b;
+                    selCtx.beginPath(); selCtx.moveTo(tx, ty);
+                    selCtx.lineTo(tx - sx * a * .95, ty); selCtx.lineTo(tx, ty - sy * a * .95);
+                    selCtx.closePath(); selCtx.fill();
+                });
+            } else {
+                const th = Math.PI * 1.6;
+                selCtx.arc(p.x, p.y, a, Math.PI * .15, th); selCtx.stroke();
+                const ex = p.x + a * Math.cos(th), ey = p.y + a * Math.sin(th);
+                const dx = -Math.sin(th), dy = Math.cos(th), px = Math.cos(th), py = Math.sin(th);
+                selCtx.beginPath();
+                selCtx.moveTo(ex + dx * a * .8, ey + dy * a * .8);
+                selCtx.lineTo(ex + px * a * .55, ey + py * a * .55);
+                selCtx.lineTo(ex - px * a * .55, ey - py * a * .55);
+                selCtx.closePath(); selCtx.fill();
+            }
+        }
+
+        function drawSelection() {
+            selCtx.clearRect(0, 0, selCanvas.width, selCanvas.height);
+            const d = curInst();
+            if (!d || !assetOf(d.aid)) return;
+            const k = cssK(), cs = instCorners(d);
+            selCtx.save();
+            selCtx.lineJoin = 'round';
+            selCtx.beginPath();
+            cs.forEach((p, i) => i ? selCtx.lineTo(p.x, p.y) : selCtx.moveTo(p.x, p.y));
+            selCtx.closePath();
+            selCtx.lineWidth = 4 * k; selCtx.strokeStyle = 'rgba(0,0,0,.35)'; selCtx.stroke();
+            selCtx.lineWidth = 2 * k; selCtx.strokeStyle = '#fff'; selCtx.stroke();
+            const hp = handlePoints(d);
+            selCtx.beginPath(); selCtx.moveTo(hp.tm.x, hp.tm.y); selCtx.lineTo(hp.rot.x, hp.rot.y);
+            selCtx.lineWidth = 2 * k; selCtx.strokeStyle = '#fff'; selCtx.stroke();
+            drawHandle(hp.del, hp.r, k, 'x');
+            drawHandle(hp.rot, hp.r, k, 'rot');
+            drawHandle(hp.scl, hp.r, k, 'scl');
+            selCtx.restore();
+        }
+
+        function renderLayers() {
+            photoCtx.clearRect(0, 0, photoCanvas.width, photoCanvas.height);
+            drawLayersTo(photoCtx, currentFrameIdx);
+            drawSelection();
+            if (imgModalAid !== null) syncImgModal(false);
+        }
+
+        function selectLayer(aid) {
+            if (aid === null || !instOf(currentFrameIdx, aid)) return;
+            selAid = aid;
+            photoPointers.clear();
+            selCanvas.classList.remove('hidden');
+            renderLayers();
+        }
+
+        function deselectLayer() {
+            selAid = null;
+            photoPointers.clear();
+            selCanvas.classList.add('hidden');
+            selCtx.clearRect(0, 0, selCanvas.width, selCanvas.height);
+        }
+
+        // Kept under the old names so every existing call keeps working: nothing is baked,
+        // "commit" simply drops the selection.
+        function commitPhoto() { deselectLayer(); }
+        function closePhotoEditor() { deselectLayer(); }
+
+        // How many frames (counted from the CURRENT frame) the picture lasts.
+        // Frames that get it newly receive a copy of the current frame's position; frames that already had it keep their own.
+        function setRunLen(aid, n) {
+            const start = currentFrameIdx, src = instOf(start, aid);
+            if (!src) return;
+            n = Math.max(1, Math.round(n));
+            saveCurrentFrameState();
+            const last = start + n - 1;
+            while (frames.length <= last) { autoBlank = autoBlank || makeBlankFrame(); frames.push(autoBlank); frameLayers.push([]); }
+            for (let k = start + 1; k <= last; k++) if (!instOf(k, aid)) frameLayers[k].push(Object.assign({}, src));
+            for (let k = last + 1; k < frames.length && instOf(k, aid); k++) frameLayers[k] = frameLayers[k].filter(o => o.aid !== aid);
+            // Shrinking again: drop the empty frames that this slider added itself.
+            while (autoBlank && frames.length > Math.max(imgModalBase, last + 1) && frames.length > 1 &&
+                   frames[frames.length - 1] === autoBlank && !frameLayers[frames.length - 1].length) { frames.pop(); frameLayers.pop(); }
+            renderTimeline();
+        }
+
+        function removeInstHere(aid) {
+            frameLayers[currentFrameIdx] = (frameLayers[currentFrameIdx] || []).filter(o => o.aid !== aid);
+            if (selAid === aid) deselectLayer();
+            if (imgModalAid === aid) closeImgModal();
+            renderLayers();
+            renderTimeline();
+            recordHistory();
+        }
+
+        function deleteAssetEverywhere(aid) {
+            frameLayers = frameLayers.map(l => l.filter(o => o.aid !== aid));
+            const a = assetOf(aid);
+            photoAssets = photoAssets.filter(x => x !== a);
+            if (selAid === aid) deselectLayer();
+            closeImgModal();
+            renderAssetsShelf();
+            renderLayers();
+            renderTimeline();
+            recordHistory();
+        }
+
+        // ---- image sheet ----
+        function openImgModal(aid) {
+            const a = assetOf(aid);
+            if (!a) return;
+            if (isPlaying) stopAnimation();
+            if (!instOf(currentFrameIdx, aid)) addLayer(a);
+            if (!instOf(currentFrameIdx, aid)) return;
+            selectLayer(aid);
+            imgModalAid = aid; imgModalBase = frames.length; autoBlank = null;
+            byId('imgModalThumb').src = a.url;
+            byId('imgModalName').textContent = a.name;
+            byId('imgModal').classList.remove('hidden');
+            syncImgModal(true);
+        }
+        function closeImgModal() {
+            imgModalAid = null; imgSliderActive = null;
+            const m = byId('imgModal'); if (m) m.classList.add('hidden');
+        }
+        function syncImgModal(resetMax) {
+            if (imgModalAid === null) return;
+            const o = instOf(currentFrameIdx, imgModalAid), a = assetOf(imgModalAid);
+            if (!o || !a) return;
+            const n = runLen(imgModalAid, currentFrameIdx);
+            const len = byId('imgLen');
+            if (resetMax || n > Number(len.max)) len.max = Math.max(60, n + 10);
+            if (imgSliderActive !== 'imgLen') len.value = n;
+            byId('valImgLen').textContent = `${n} · ${(n / fps).toFixed(1)} ${I18N[currentLang].ExportSec}`;
+            const pct = Math.round(o.scale / fitScale(a.img) * 100);
+            if (imgSliderActive !== 'imgSize') byId('imgSize').value = Math.min(400, Math.max(5, pct));
+            byId('valImgSize').textContent = `${pct}%`;
+            let deg = Math.round(o.rot * 180 / Math.PI); deg = ((deg + 180) % 360 + 360) % 360 - 180;
+            if (imgSliderActive !== 'imgRot') byId('imgRot').value = deg;
+            byId('valImgRot').textContent = `${deg}°`;
+        }
+        function setupImgModal() {
+            const aid = () => imgModalAid;
+            const len = byId('imgLen'), size = byId('imgSize'), rot = byId('imgRot');
+            const act = (id) => () => { imgSliderActive = id; };
+            [['imgLen', len], ['imgSize', size], ['imgRot', rot]].forEach(([id, el]) => {
+                el.addEventListener('pointerdown', act(id));
+                el.addEventListener('change', () => { imgSliderActive = null; recordHistory(); syncImgModal(false); });
+            });
+            len.addEventListener('input', () => {
+                imgSliderActive = 'imgLen';
+                if (aid() === null) return;
+                setRunLen(aid(), Number(len.value));
+                syncImgModal(false);
+            });
+            const step = (d) => {
+                if (aid() === null) return;
+                setRunLen(aid(), runLen(aid(), currentFrameIdx) + d);
+                recordHistory(); syncImgModal(true);
+            };
+            byId('imgLenMinus').onclick = () => step(-1);
+            byId('imgLenPlus').onclick = () => step(1);
+            size.addEventListener('input', () => {
+                imgSliderActive = 'imgSize';
+                const o = aid() === null ? null : instOf(currentFrameIdx, aid()), a = aid() === null ? null : assetOf(aid());
+                if (!o || !a) return;
+                o.scale = fitScale(a.img) * Number(size.value) / 100;
+                renderLayers();
+            });
+            rot.addEventListener('input', () => {
+                imgSliderActive = 'imgRot';
+                const o = aid() === null ? null : instOf(currentFrameIdx, aid());
+                if (!o) return;
+                o.rot = Number(rot.value) * Math.PI / 180;
+                renderLayers();
+            });
+            byId('imgModalClose').onclick = closeImgModal;
+            byId('btnImgRemoveHere').onclick = () => { if (aid() !== null) removeInstHere(aid()); };
+            byId('btnImgDeleteAll').onclick = () => { if (aid() !== null) deleteAssetEverywhere(aid()); };
+        }
+
+        function setupPhotoCanvasEvents() {
+            let mode = null, st = null, moved = false, changed = false, down0 = null, wheelTimer = null;
+            const S = () => curInst();
+            const toCanvas = (e) => {
+                const r = selCanvas.getBoundingClientRect();
+                return { x: (e.clientX - r.left) * selCanvas.width / r.width, y: (e.clientY - r.top) * selCanvas.height / r.height };
+            };
+            const clampScale = (v) => Math.min(20, Math.max(0.02, v));
+            const rebase = () => {
+                const d = selAid !== null ? S() : null;
+                const pts = Array.from(photoPointers.values());
+                mode = null; st = null;
+                if (!d) return;
+                if (pts.length === 1) {
+                    mode = 'drag';
+                    st = { sx: pts[0].x, sy: pts[0].y, cx: d.cx, cy: d.cy };
+                } else if (pts.length >= 2) {
+                    const [a, b] = pts;
+                    const mx = (a.x + b.x) / 2, my = (a.y + b.y) / 2;
+                    const rx = mx - d.cx, ry = my - d.cy;
+                    const c = Math.cos(d.rot), s = Math.sin(d.rot);
+                    mode = 'pinch';
+                    st = { d: Math.hypot(a.x - b.x, a.y - b.y) || 1, ang: Math.atan2(b.y - a.y, b.x - a.x),
+                           scale: d.scale, rot: d.rot,
+                           qx: (c * rx + s * ry) / d.scale, qy: (-s * rx + c * ry) / d.scale };
+                }
+            };
+            selCanvas.addEventListener('pointerdown', (e) => {
+                if (selAid === null) return;
+                const d = S();
+                if (!d) { deselectLayer(); return; }
+                const pt = toCanvas(e);
+                try { selCanvas.setPointerCapture(e.pointerId); } catch (_) {}
+                photoPointers.set(e.pointerId, pt);
+                if (photoPointers.size === 1) {
+                    moved = false; changed = false; down0 = pt;
+                    const hp = handlePoints(d);
+                    const near = (h) => Math.hypot(pt.x - h.x, pt.y - h.y) <= hp.hit;
+                    if (near(hp.del)) { mode = 'delete'; st = null; }
+                    else if (near(hp.rot)) { mode = 'rotate'; st = { a0: Math.atan2(pt.y - d.cy, pt.x - d.cx), rot: d.rot }; }
+                    else if (near(hp.scl)) { mode = 'scale'; st = { d0: Math.max(1, Math.hypot(pt.x - d.cx, pt.y - d.cy)), scale: d.scale }; }
+                    else if (hitInst(d, pt)) rebase();
+                    else { mode = 'outside'; st = null; }
+                } else { moved = true; rebase(); }
+                e.preventDefault();
+            });
+            selCanvas.addEventListener('pointermove', (e) => {
+                if (selAid === null || !photoPointers.has(e.pointerId)) return;
+                const d = S();
+                if (!d) return;
+                const pt = toCanvas(e);
+                photoPointers.set(e.pointerId, pt);
+                if (down0 && Math.hypot(pt.x - down0.x, pt.y - down0.y) > 12 * cssK()) moved = true;
+                const pts = Array.from(photoPointers.values());
+                if (mode === 'pinch' && pts.length >= 2) {
+                    const [a, b] = pts;
+                    const mx = (a.x + b.x) / 2, my = (a.y + b.y) / 2;
+                    const dist = Math.hypot(a.x - b.x, a.y - b.y) || 1;
+                    const sc = clampScale(st.scale * dist / st.d);
+                    const rot = st.rot + (Math.atan2(b.y - a.y, b.x - a.x) - st.ang);
+                    d.scale = sc; d.rot = rot;
+                    d.cx = mx - sc * (Math.cos(rot) * st.qx - Math.sin(rot) * st.qy);
+                    d.cy = my - sc * (Math.sin(rot) * st.qx + Math.cos(rot) * st.qy);
+                    changed = true;
+                } else if (mode === 'rotate') {
+                    d.rot = st.rot + (Math.atan2(pt.y - d.cy, pt.x - d.cx) - st.a0);
+                    changed = true;
+                } else if (mode === 'scale') {
+                    const dist = Math.max(1, Math.hypot(pt.x - d.cx, pt.y - d.cy));
+                    d.scale = clampScale(st.scale * dist / st.d0);
+                    changed = true;
+                } else if (mode === 'drag') {
+                    d.cx = st.cx + (pt.x - st.sx);
+                    d.cy = st.cy + (pt.y - st.sy);
+                    if (moved) changed = true;
+                } else return;
+                renderLayers();
+                e.preventDefault();
+            });
+            const end = (e) => {
+                if (!photoPointers.has(e.pointerId)) return;
+                const pt = photoPointers.get(e.pointerId);
+                photoPointers.delete(e.pointerId);
+                if (photoPointers.size === 0) {
+                    const m = mode;
+                    mode = null; st = null;
+                    if (selAid === null) return;
+                    if (m === 'delete' && !moved && e.type === 'pointerup') {
+                        const d = S();
+                        if (d && Math.hypot(pt.x - handlePoints(d).del.x, pt.y - handlePoints(d).del.y) <= handlePoints(d).hit) { removeInstHere(selAid); return; }
+                    } else if (m === 'outside' && !moved && e.type === 'pointerup') {
+                        deselectLayer();
+                        return;
+                    }
+                    if (changed) { changed = false; recordHistory(); }
+                } else rebase();
+            };
+            selCanvas.addEventListener('pointerup', end);
+            selCanvas.addEventListener('pointercancel', end);
+            selCanvas.addEventListener('wheel', (e) => {
+                if (selAid === null) return;
+                const d = S();
+                if (!d) return;
+                e.preventDefault();
+                if (e.shiftKey) d.rot += (e.deltaY < 0 ? 5 : -5) * Math.PI / 180;
+                else d.scale = clampScale(d.scale * (e.deltaY < 0 ? 1.08 : 1 / 1.08));
+                renderLayers();
+                clearTimeout(wheelTimer);
+                wheelTimer = setTimeout(recordHistory, 400);
+            }, { passive: false });
+        }
+
+        // AUDIO & MIC RECORDING
+        function handleAudioImport(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = async (evt) => {
+                try {
+                    if (getAudioContext().state === 'suspended') await getAudioContext().resume();
+                    audioBuffer = await getAudioContext().decodeAudioData(evt.target.result.slice(0));
+                    resetAudioSettings();
+                    soundAssetName = file.name;
+                    renderAudioWaveform();
+                    renderAssetsShelf();
+                } catch (err) { alert('Не удалось открыть этот аудиофайл. Попробуй MP3, WAV или M4A.'); }
+            };
+            reader.readAsArrayBuffer(file);
+        }
+
+        function setupMicrophoneRecording() {
+            const btnRecord = document.getElementById('btnRecordAudio');
+            btnRecord.onclick = async () => {
+                if (!isRecording) {
+                    try {
+                        if (!navigator.mediaDevices?.getUserMedia || !window.MediaRecorder) throw new Error('Recording is not supported in this browser');
+                        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                        mediaRecorder = new MediaRecorder(stream);
+                        recordedAudioChunks = [];
+
+                        mediaRecorder.ondataavailable = (e) => recordedAudioChunks.push(e.data);
+                        mediaRecorder.onstop = async () => {
+                            const blob = new Blob(recordedAudioChunks, { type: mediaRecorder.mimeType || 'audio/webm' });
+                            const arrayBuffer = await blob.arrayBuffer();
+                            try {
+                                audioBuffer = await getAudioContext().decodeAudioData(arrayBuffer);
+                                resetAudioSettings();
+                                soundAssetName = 'Запись с микрофона';
+                                renderAudioWaveform();
+                                renderAssetsShelf();
+                            } catch (err) { alert('Не удалось обработать запись.'); }
+                            stream.getTracks().forEach(track => track.stop());
+                        };
+
+                        mediaRecorder.start();
+                        isRecording = true;
+                        btnRecord.classList.add('glossy-gradient-danger', 'text-white');
+                        document.getElementById('micIcon').className = "fas fa-stop text-xs animate-pulse";
+                    } catch (err) {
+                        const secure = window.isSecureContext;
+                        const msg = secure
+                            ? 'Нет доступа к микрофону. Разрешите микрофон для этого сайта в настройках браузера.'
+                            : 'Браузер не даёт микрофон, когда файл открыт локально (content:// или file://). Записать звук через системное приложение записи?';
+                        if (confirm(msg + (secure ? '\n\nЗаписать через системное приложение записи?' : ''))) byId('audioCaptureInput').click();
+                    }
+                } else {
+                    mediaRecorder.stop();
+                    isRecording = false;
+                    btnRecord.classList.remove('glossy-gradient-danger', 'text-white');
+                    document.getElementById('micIcon').className = "fas fa-microphone text-xs";
+                }
+            };
+        }
+
+        function renderAudioWaveform() { audSelected = true; renderAudioLane(); }
+
+        function resetAudioSettings() {
+            audioSettings = { start: 0, len: audioBuffer ? audioBuffer.duration : 0, vol: 1, offset: 0, fadeIn: 0, fadeOut: 0 };
+        }
+        // Length that is really used: the chosen length, never past the end of the file.
+        function audioEffLen() {
+            if (!audioBuffer) return 0;
+            const room = Math.max(0.05, audioBuffer.duration - audioSettings.start);
+            return Math.min(Math.max(0.05, audioSettings.len || audioBuffer.duration), room);
+        }
+        function fmtSec(v) { return `${v.toFixed(1)} ${I18N[currentLang].ExportSec}`; }
+
+        // ---- fade / volume envelope (seconds inside the clip) ----
+        function fadeParts() {
+            const len = audioEffLen();
+            let fi = audioSettings.fadeIn || 0, fo = audioSettings.fadeOut || 0;
+            const tot = fi + fo;
+            if (tot > len) { fi *= len / tot; fo *= len / tot; }
+            return { fi, fo, len };
+        }
+        function envAt(p) {
+            const { fi, fo, len } = fadeParts();
+            let g = 1;
+            if (fi > 0 && p < fi) g = Math.min(g, p / fi);
+            if (fo > 0 && p > len - fo) g = Math.min(g, (len - p) / fo);
+            return audioSettings.vol * Math.max(0, g);
+        }
+        function scheduleGain(gain, when, p0) {
+            const { fi, fo, len } = fadeParts();
+            const g = gain.gain;
+            g.cancelScheduledValues(0);
+            g.setValueAtTime(envAt(p0), when);
+            [fi, len - fo, len].forEach(bp => {
+                if (bp > p0 + 0.001 && bp <= len + 0.001) g.linearRampToValueAtTime(envAt(Math.min(bp, len)), when + (bp - p0));
+            });
+        }
+        // Starts the clip so that animation time tStart is "now". Returns null when the clip is already over.
+        function startClipAudio(ac, dest, tStart) {
+            if (!audioBuffer) return null;
+            const off = audioSettings.offset || 0, len = audioEffLen();
+            if (tStart >= off + len - 0.02) return null;
+            const p0 = Math.max(0, tStart - off);
+            const when = ac.currentTime + Math.max(0, off - tStart);
+            const src = ac.createBufferSource();
+            src.buffer = audioBuffer;
+            const gain = ac.createGain();
+            src.connect(gain); gain.connect(dest);
+            scheduleGain(gain, when, p0);
+            src.start(when, audioSettings.start + p0, len - p0);
+            return { src, gain, when, p0 };
+        }
+        async function playAudioTrack() {
+            if (!audioBuffer) return;
+            const ac = getAudioContext();
+            if (ac.state === 'suspended') { try { await ac.resume(); } catch (_) {} }
+            if (!isPlaying) return;
+            const c = startClipAudio(ac, ac.destination, currentFrameIdx / fps);
+            audioSourceNode = c ? c.src : null;
+        }
+
+        // ---- preview of the clip alone ----
+        let previewInfo = null;
+        function setPreviewUI(on) {
+            const b = byId('btnAudPreview');
+            if (!b) return;
+            b.querySelector('i').className = on ? 'fas fa-stop' : 'fas fa-play';
+            byId('lblAudPreview').textContent = I18N[currentLang][on ? 'AudStopPrev' : 'AudPreview'];
+        }
+        function stopPreview() {
+            if (previewSrc) { try { previewSrc.onended = null; previewSrc.stop(); } catch (_) {} }
+            previewSrc = null; previewGain = null; previewInfo = null;
+            setPreviewUI(false);
+        }
+        async function togglePreview() {
+            if (previewSrc) { stopPreview(); return; }
+            if (!audioBuffer) return;
+            const ac = getAudioContext();
+            if (ac.state === 'suspended') await ac.resume();
+            const c = startClipAudio(ac, ac.destination, audioSettings.offset || 0);
+            if (!c) return;
+            previewSrc = c.src; previewGain = c.gain; previewInfo = c;
+            c.src.onended = () => { if (previewSrc === c.src) { previewSrc = null; previewGain = null; previewInfo = null; setPreviewUI(false); } };
+            setPreviewUI(true);
+        }
+        function reschedulePreview() {
+            if (!previewInfo) return;
+            const ac = getAudioContext();
+            const p = previewInfo.p0 + (ac.currentTime - previewInfo.when);
+            if (p < audioEffLen()) scheduleGain(previewInfo.gain, ac.currentTime, Math.max(0, p));
+        }
+
+        // ---- CapCut-like clip on the timeline ----
+        let audSelected = false;
+        const peaksCache = new WeakMap();
+        function audioPeaks() {
+            if (!audioBuffer) return [];
+            let p = peaksCache.get(audioBuffer);
+            if (p) return p;
+            const N = 1200, samples = audioBuffer.getChannelData(0);
+            p = new Float32Array(N);
+            for (let i = 0; i < N; i++) {
+                const from = Math.floor(i * samples.length / N), to = Math.max(from + 1, Math.floor((i + 1) * samples.length / N));
+                const step = Math.max(1, Math.floor((to - from) / 64));
+                let pk = 0;
+                for (let j = from; j < to; j += step) pk = Math.max(pk, Math.abs(samples[j]));
+                p[i] = pk;
+            }
+            let mx = 0;
+            for (let i = 0; i < N; i++) mx = Math.max(mx, p[i]);
+            if (mx > 0) for (let i = 0; i < N; i++) p[i] /= mx;
+            peaksCache.set(audioBuffer, p);
+            return p;
+        }
+        // One frame card = one frame on the audio lane, so the sound lines up with the pictures above it.
+        function framePitch() {
+            const c = Array.from(byId('framesTrack').children).filter(x => x.id !== 'audioPad');
+            if (c.length >= 2) return c[1].offsetLeft - c[0].offsetLeft;
+            if (c.length === 1) return c[0].offsetWidth + 12;
+            return 76;
+        }
+        function pxPerSec() { return Math.max(1, framePitch() * fps); }
+
+        function drawClipWave() {
+            if (!audioBuffer) return;
+            const cv = byId('audWave');
+            const w = Math.max(24, audioEffLen() * pxPerSec());
+            const cw = Math.max(24, Math.min(3000, Math.round(w))), ch = 56;
+            if (cv.width !== cw) cv.width = cw;
+            cv.height = ch;
+            const c = cv.getContext('2d');
+            c.clearRect(0, 0, cw, ch);
+            const pk = audioPeaks(), N = pk.length, dur = audioBuffer.duration, len = audioEffLen(), st = audioSettings.start;
+            const vol = Math.min(2, Math.max(0.15, audioSettings.vol));
+            c.fillStyle = 'rgba(205,255,250,.92)';
+            const bw = 3, gap = 1;
+            for (let x = 0; x < cw; x += bw + gap) {
+                const p = (x / cw) * len;
+                const idx = Math.min(N - 1, Math.floor((st + p) / dur * N));
+                const env = audioSettings.vol > 0 ? envAt(p) / audioSettings.vol : 0;
+                const h = Math.min(ch - 2, Math.max(2, pk[idx] * ch * 0.9 * vol * env));
+                c.fillRect(x, (ch - h) / 2, bw, h);
+            }
+        }
+
+        function updateAudioControls() {
+            if (!audioBuffer) return;
+            const len = audioEffLen();
+            byId('audVol').value = Math.round(audioSettings.vol * 100);
+            byId('valAudVol').textContent = `${Math.round(audioSettings.vol * 100)}%`;
+            [['audFadeIn', 'fadeIn', 'valFadeIn'], ['audFadeOut', 'fadeOut', 'valFadeOut']].forEach(([id, key, lab]) => {
+                const el = byId(id);
+                el.max = len.toFixed(1);
+                audioSettings[key] = Math.min(audioSettings[key] || 0, len);
+                el.value = audioSettings[key];
+                byId(lab).textContent = fmtSec(audioSettings[key]);
+            });
+        }
+
+        // The frames row gets an empty tail as long as the sound, so you can scroll along the whole sound to its very end.
+        function padTrackForAudio() {
+            const track = byId('framesTrack');
+            const old = byId('audioPad'); if (old) old.remove();
+            if (!audioBuffer) return;
+            const cards = Array.from(track.children);
+            if (!cards.length) return;
+            const last = cards[cards.length - 1];
+            const cardsEnd = last.offsetLeft + last.offsetWidth;
+            const audioEnd = ((audioSettings.offset || 0) + audioEffLen()) * pxPerSec() + 40;
+            const need = audioEnd - cardsEnd - 12;
+            if (need <= 0) return;
+            const pad = document.createElement('div');
+            pad.id = 'audioPad';
+            pad.className = 'flex-shrink-0 self-stretch rounded-2xl border-2 border-dashed border-teal-400/25 flex items-center justify-center text-teal-300/50 text-[10px] font-bold pointer-events-none';
+            pad.style.width = `${Math.ceil(need)}px`;
+            pad.textContent = '♪ звук';
+            track.appendChild(pad);
+        }
+
+        function renderAudioLane() {
+            const clip = byId('audioClip');
+            if (!clip) return;
+            padTrackForAudio();
+            const has = !!audioBuffer;
+            byId('noAudioMsg').classList.toggle('hidden', has);
+            clip.classList.toggle('hidden', !has);
+            byId('audioToolbar').classList.toggle('hidden', !(has && audSelected));
+            if (!has) { byId('audioInner').style.width = ''; return; }
+            const pps = pxPerSec();
+            const left = (audioSettings.offset || 0) * pps, w = Math.max(24, audioEffLen() * pps);
+            clip.style.left = `${left}px`;
+            clip.style.width = `${w}px`;
+            clip.classList.toggle('sel', audSelected);
+            const hw = `${Math.max(22, Math.min(46, Math.floor(w / 3)))}px`;
+            byId('audHL').style.width = hw; byId('audHR').style.width = hw;
+            byId('audioInner').style.width = `${Math.max(left + w + 40, byId('framesTrack').scrollWidth)}px`;
+            byId('audClipLabel').textContent = `${soundAssetName || 'Аудио'} · ${fmtSec(audioEffLen())}`;
+            drawClipWave();
+        }
+
+        function removeAudio() {
+            stopPreview();
+            audioBuffer = null; soundAssetName = ''; audSelected = false;
+            byId('audSub').classList.add('hidden');
+            renderAudioLane();
+            renderAssetsShelf();
+        }
+
+        function setupAudioLane() {
+            const clip = byId('audioClip'), hl = byId('audHL'), hr = byId('audHR');
+            const scroll = byId('audioScroll'), track = byId('framesTrack');
+            let drag = null;
+            const begin = (kind) => (e) => {
+                if (!audioBuffer) return;
+                if (kind === 'body' && (!audSelected || e.target === hl || e.target === hr)) return;
+                e.preventDefault(); e.stopPropagation();
+                stopPreview();
+                drag = { kind, x0: e.clientX, sc0: scroll.scrollLeft, s0: Object.assign({}, audioSettings), len0: audioEffLen(), pid: e.pointerId };
+                lastX = e.clientX;
+                if (!edgeRaf) edgeRaf = requestAnimationFrame(edgeLoop);
+                try { e.currentTarget.setPointerCapture(e.pointerId); } catch (_) {}
+            };
+            let lastX = 0, edgeRaf = 0;
+            const edgeLoop = () => {
+                if (!drag) { edgeRaf = 0; return; }
+                const r = scroll.getBoundingClientRect();
+                let v = 0;
+                if (lastX > r.right - 56) v = Math.min(28, (lastX - (r.right - 56)) / 2 + 6);
+                else if (lastX < r.left + 56) v = -Math.min(28, ((r.left + 56) - lastX) / 2 + 6);
+                if (v) { scroll.scrollLeft += v; applyMove(lastX); }
+                edgeRaf = requestAnimationFrame(edgeLoop);
+            };
+            const move = (e) => {
+                if (!drag || e.pointerId !== drag.pid) return;
+                lastX = e.clientX;
+                applyMove(e.clientX);
+                e.preventDefault();
+            };
+            const applyMove = (clientX) => {
+                if (!drag) return;
+                const dt = (clientX - drag.x0 + scroll.scrollLeft - drag.sc0) / pxPerSec(), s0 = drag.s0, dur = audioBuffer.duration;
+                if (drag.kind === 'body') {
+                    audioSettings.offset = Math.max(0, (s0.offset || 0) + dt);
+                } else if (drag.kind === 'L') {
+                    const lo = -Math.min(s0.start, s0.offset || 0), hi = drag.len0 - 0.1;
+                    const d = Math.min(hi, Math.max(lo, dt));
+                    audioSettings.start = s0.start + d;
+                    audioSettings.len = drag.len0 - d;
+                    audioSettings.offset = (s0.offset || 0) + d;
+                } else {
+                    audioSettings.len = Math.min(dur - s0.start, Math.max(0.1, drag.len0 + dt));
+                }
+                renderAudioLane();
+            };
+            const up = (e) => {
+                if (!drag || e.pointerId !== drag.pid) return;
+                drag = null;
+                updateAudioControls();
+                renderAudioLane();
+                renderAssetsShelf();
+            };
+            [[clip, 'body'], [hl, 'L'], [hr, 'R']].forEach(([el, kind]) => {
+                el.addEventListener('pointerdown', begin(kind));
+                el.addEventListener('pointermove', move);
+                el.addEventListener('pointerup', up);
+                el.addEventListener('pointercancel', up);
+            });
+            clip.addEventListener('click', () => {
+                if (!audSelected) { audSelected = true; updateAudioControls(); renderAudioLane(); }
+            });
+            scroll.addEventListener('click', (e) => {
+                if ((e.target === scroll || e.target === byId('audioInner')) && audSelected) { audSelected = false; byId('audSub').classList.add('hidden'); renderAudioLane(); }
+            });
+            // the audio lane scrolls together with the frames
+            let syncing = false;
+            const sync = (from, to) => from.addEventListener('scroll', () => {
+                if (syncing) return;
+                syncing = true; to.scrollLeft = from.scrollLeft;
+                requestAnimationFrame(() => { syncing = false; });
+            });
+            sync(track, scroll); sync(scroll, track);
+
+            // toolbar
+            const sub = byId('audSub'), subVol = byId('subVol'), subFade = byId('subFade');
+            const showSub = (which) => {
+                const open = !sub.classList.contains('hidden');
+                const cur = subFade.classList.contains('hidden') ? 'vol' : 'fade';
+                if (open && cur === which) { sub.classList.add('hidden'); return; }
+                sub.classList.remove('hidden');
+                subVol.classList.toggle('hidden', which !== 'vol');
+                subFade.classList.toggle('hidden', which !== 'fade');
+                updateAudioControls();
+            };
+            byId('abVol').onclick = () => showSub('vol');
+            byId('abFade').onclick = () => showSub('fade');
+            byId('btnAudPreview').onclick = togglePreview;
+            byId('abDel').onclick = removeAudio;
+            byId('abDone').onclick = () => { stopPreview(); audSelected = false; sub.classList.add('hidden'); renderAudioLane(); };
+            byId('audVol').oninput = (e) => {
+                audioSettings.vol = Number(e.target.value) / 100;
+                byId('valAudVol').textContent = `${e.target.value}%`;
+                reschedulePreview(); drawClipWave(); renderAssetsShelf();
+            };
+            [['audFadeIn', 'fadeIn', 'valFadeIn'], ['audFadeOut', 'fadeOut', 'valFadeOut']].forEach(([id, key, lab]) => {
+                byId(id).oninput = (e) => {
+                    audioSettings[key] = Number(e.target.value);
+                    byId(lab).textContent = fmtSec(audioSettings[key]);
+                    reschedulePreview(); drawClipWave();
+                };
+            });
+        }
+
+        // EXPORT ENGINE (progress overlay, everything locked except Stop)
+        // ---- Tiny MP4 writer (H.264 + AAC). Constant frame timing, "faststart" (moov before mdat): plays everywhere, incl. WhatsApp. ----
+        function buildMp4(o) {
+            const bytes = (...parts) => {
+                const flat = parts.map(p => p instanceof Uint8Array ? p : Uint8Array.from(p));
+                let n = 0; flat.forEach(p => { n += p.length; });
+                const out = new Uint8Array(n); let at = 0;
+                flat.forEach(p => { out.set(p, at); at += p.length; });
+                return out;
+            };
+            const u32 = (n) => [(n >>> 24) & 255, (n >>> 16) & 255, (n >>> 8) & 255, n & 255];
+            const u16 = (n) => [(n >>> 8) & 255, n & 255];
+            const str = (s) => Array.from(s).map(c => c.charCodeAt(0));
+            const box = (type, ...p) => { const body = bytes(...p); return bytes(u32(body.length + 8), str(type), body); };
+            const full = (type, ver, flags, ...p) => box(type, [ver, (flags >> 16) & 255, (flags >> 8) & 255, flags & 255], ...p);
+            const MATRIX = [].concat(u32(0x10000), u32(0), u32(0), u32(0), u32(0x10000), u32(0), u32(0), u32(0), u32(0x40000000));
+            const zeros = (n) => new Array(n).fill(0);
+
+            const track = (id, kind, tsc, samples, entry, w, h, offset) => {
+                const total = samples.reduce((a, s) => a + s.dur, 0);
+                const movieMs = Math.round(total / tsc * 1000);
+                const runs = [];
+                samples.forEach(s => { const r = runs[runs.length - 1]; if (r && r[1] === s.dur) r[0]++; else runs.push([1, s.dur]); });
+                const stts = full('stts', 0, 0, u32(runs.length), ...runs.map(r => [].concat(u32(r[0]), u32(r[1]))));
+                const keys = [];
+                samples.forEach((s, i) => { if (s.key) keys.push(i + 1); });
+                const stss = kind === 'vide' ? full('stss', 0, 0, u32(keys.length), ...keys.map(u32)) : null;
+                const stsc = full('stsc', 0, 0, u32(1), u32(1), u32(samples.length), u32(1));
+                const stsz = full('stsz', 0, 0, u32(0), u32(samples.length), ...samples.map(s => u32(s.data.length)));
+                const stco = full('stco', 0, 0, u32(1), u32(offset));
+                const stsd = full('stsd', 0, 0, u32(1), entry);
+                const stbl = box('stbl', stsd, stts, ...(stss ? [stss] : []), stsc, stsz, stco);
+                const dinf = box('dinf', full('dref', 0, 0, u32(1), full('url ', 0, 1)));
+                const mhd = kind === 'vide' ? full('vmhd', 0, 1, u16(0), zeros(6)) : full('smhd', 0, 0, u16(0), u16(0));
+                const minf = box('minf', mhd, dinf, stbl);
+                const hdlr = full('hdlr', 0, 0, u32(0), str(kind), zeros(12), str(kind === 'vide' ? 'VideoHandler' : 'SoundHandler'), [0]);
+                const mdhd = full('mdhd', 0, 0, u32(0), u32(0), u32(tsc), u32(total), u16(0x55c4), u16(0));
+                const mdia = box('mdia', mdhd, hdlr, minf);
+                const tkhd = full('tkhd', 0, 3, u32(0), u32(0), u32(id), u32(0), u32(movieMs), zeros(8), u16(0), u16(0),
+                    u16(kind === 'soun' ? 0x0100 : 0), u16(0), MATRIX, u32((w * 65536) >>> 0), u32((h * 65536) >>> 0));
+                return { trak: box('trak', tkhd, mdia), movieMs };
+            };
+
+            const V = o.video, A = o.audio;
+            const vEntry = box('avc1', zeros(6), u16(1), u16(0), u16(0), u32(0), u32(0), u32(0), u16(o.width), u16(o.height),
+                u32(0x00480000), u32(0x00480000), u32(0), u16(1), zeros(32), u16(0x18), u16(0xFFFF), box('avcC', V.avcC));
+            let aEntry = null;
+            if (A) {
+                const dsi = [0x05, A.asc.length].concat(Array.from(A.asc));
+                const dcd = [0x04, 13 + dsi.length, 0x40, 0x15, 0, 0, 0].concat(u32(A.bitrate || 128000), u32(A.bitrate || 128000), dsi);
+                const es = [0x03, 3 + dcd.length + 3].concat(u16(0), [0], dcd, [0x06, 0x01, 0x02]);
+                aEntry = box('mp4a', zeros(6), u16(1), u32(0), u32(0), u16(A.channels), u16(16), u16(0), u16(0),
+                    u32((A.sampleRate * 65536) >>> 0), full('esds', 0, 0, es));
+            }
+            const vBytes = V.samples.reduce((a, s) => a + s.data.length, 0);
+            const aBytes = A ? A.samples.reduce((a, s) => a + s.data.length, 0) : 0;
+            const ftyp = box('ftyp', str('isom'), u32(512), str('isom'), str('iso2'), str('avc1'), str('mp41'));
+            const buildMoov = (vOff, aOff) => {
+                const vt = track(1, 'vide', V.timescale, V.samples, vEntry, o.width, o.height, vOff);
+                const at = A ? track(2, 'soun', A.sampleRate, A.samples, aEntry, 0, 0, aOff) : null;
+                const ms = Math.max(vt.movieMs, at ? at.movieMs : 0);
+                const mvhd = full('mvhd', 0, 0, u32(0), u32(0), u32(1000), u32(ms), u32(0x10000), u16(0x0100), u16(0), zeros(8), MATRIX, zeros(24), u32(A ? 3 : 2));
+                return box('moov', mvhd, vt.trak, ...(at ? [at.trak] : []));
+            };
+            const moovSize = buildMoov(0, 0).length;
+            const vOff = ftyp.length + moovSize + 8;
+            const moov = buildMoov(vOff, vOff + vBytes);
+            const mdatHead = bytes(u32(vBytes + aBytes + 8), str('mdat'));
+            const parts = [ftyp, moov, mdatHead].concat(V.samples.map(s => s.data), A ? A.samples.map(s => s.data) : []);
+            return new Blob(parts, { type: 'video/mp4' });
+        }
+
+        // ---- MP4 export with WebCodecs: every frame gets exactly 1/fps seconds (the old MediaRecorder file had uneven timing). ----
+        // Returns true when the file was saved, false when this browser cannot do it (the caller then falls back).
+        async function exportWithWebCodecs(o) {
+            const { W, H, off, drawFrame, total, idxAt, setProgress, L, isCancelled } = o;
+            const encW = W & ~1, encH = H & ~1;
+            if (!window.VideoEncoder || !window.VideoFrame || encW < 16 || encH < 16) return false;
+            const lvl = encW * encH > 921600 ? '28' : '1f';
+            const bitrate = Math.max(1500000, Math.min(12000000, Math.round(encW * encH * fps * 0.15)));
+            let vcfg = null;
+            for (const codec of ['avc1.42E0' + lvl, 'avc1.4D40' + lvl, 'avc1.6400' + lvl]) {
+                const c = { codec, width: encW, height: encH, bitrate, framerate: fps, avc: { format: 'avc' }, latencyMode: 'realtime' };
+                try { const r = await VideoEncoder.isConfigSupported(c); if (r && r.supported) { vcfg = c; break; } } catch (_) {}
+            }
+            if (!vcfg) return false;
+            let sr = 48000, acfg = null;
+            if (audioBuffer) {
+                if (!window.AudioEncoder || !window.AudioData || !window.OfflineAudioContext) return false;
+                for (const rate of [48000, 44100]) {
+                    const c = { codec: 'mp4a.40.2', sampleRate: rate, numberOfChannels: 2, bitrate: 128000 };
+                    try { const r = await AudioEncoder.isConfigSupported(c); if (r && r.supported) { acfg = c; sr = rate; break; } } catch (_) {}
+                }
+                if (!acfg) return false;
+            }
+            const toU8 = (d) => d instanceof ArrayBuffer ? new Uint8Array(d.slice(0)) : new Uint8Array(d.buffer.slice(d.byteOffset, d.byteOffset + d.byteLength));
+            const tick = () => new Promise(r => setTimeout(r, 0));
+            let vErr = null, aErr = null, avcC = null;
+            const vSamples = [], aSamples = [];
+            const venc = new VideoEncoder({
+                output: (chunk, meta) => {
+                    const data = new Uint8Array(chunk.byteLength); chunk.copyTo(data);
+                    if (!avcC && meta && meta.decoderConfig && meta.decoderConfig.description) avcC = toU8(meta.decoderConfig.description);
+                    vSamples.push({ data, key: chunk.type === 'key', dur: 1000 });
+                },
+                error: (e) => { vErr = e; }
+            });
+            let aenc = null;
+            try {
+                venc.configure(vcfg);
+                let src = off, ectx = null;
+                if (encW !== W || encH !== H) { src = document.createElement('canvas'); src.width = encW; src.height = encH; ectx = src.getContext('2d'); }
+                const kf = Math.max(1, Math.round(fps * 2));
+                for (let k = 0; k < total; k++) {
+                    if (isCancelled()) throw 'cancel';
+                    if (vErr) throw vErr;
+                    const fi = idxAt(k);
+                    drawFrame(fi);
+                    if (ectx) ectx.drawImage(off, 0, 0);
+                    const vf = new VideoFrame(src, { timestamp: Math.round(k * 1e6 / fps), duration: Math.round(1e6 / fps) });
+                    venc.encode(vf, { keyFrame: k % kf === 0 });
+                    vf.close();
+                    while (venc.encodeQueueSize > 6) { await new Promise(r => setTimeout(r, 4)); if (vErr) throw vErr; }
+                    if (k % 3 === 0) {
+                        setProgress(k / total * (audioBuffer ? 0.8 : 0.95), `${L.ExportFrame} ${fi + 1}/${frames.length}`);
+                        await tick();
+                    }
+                }
+                await venc.flush();
+                if (vErr) throw vErr;
+                if (!avcC || vSamples.length === 0) throw new Error('no video data');
+
+                if (audioBuffer) {
+                    setProgress(0.82, L.ExportPrep);
+                    const oac = new OfflineAudioContext(2, Math.ceil(total / fps * sr), sr);
+                    startClipAudio(oac, oac.destination, 0);
+                    const pcm = await oac.startRendering();
+                    if (isCancelled()) throw 'cancel';
+                    aenc = new AudioEncoder({
+                        output: (chunk) => {
+                            const data = new Uint8Array(chunk.byteLength); chunk.copyTo(data);
+                            aSamples.push({ data, dur: Math.max(1, Math.round((chunk.duration || 21333) * sr / 1e6)) });
+                        },
+                        error: (e) => { aErr = e; }
+                    });
+                    aenc.configure(acfg);
+                    const c0 = pcm.getChannelData(0), c1 = pcm.numberOfChannels > 1 ? pcm.getChannelData(1) : c0;
+                    const block = 4800;
+                    for (let i = 0; i < c0.length; i += block) {
+                        const n = Math.min(block, c0.length - i);
+                        const buf = new Float32Array(n * 2);
+                        buf.set(c0.subarray(i, i + n), 0); buf.set(c1.subarray(i, i + n), n);
+                        const ad = new AudioData({ format: 'f32-planar', sampleRate: sr, numberOfFrames: n, numberOfChannels: 2, timestamp: Math.round(i * 1e6 / sr), data: buf });
+                        aenc.encode(ad); ad.close();
+                        if (aErr) throw aErr;
+                        if (isCancelled()) throw 'cancel';
+                    }
+                    await aenc.flush();
+                    if (aErr) throw aErr;
+                    if (!aSamples.length) throw new Error('no audio data');
+                }
+                setProgress(0.97, '');
+                const rates = [96000, 88200, 64000, 48000, 44100, 32000, 24000, 22050, 16000, 12000, 11025, 8000];
+                const fIdx = Math.max(0, rates.indexOf(sr));
+                const blob = buildMp4({
+                    width: encW, height: encH,
+                    video: { timescale: fps * 1000, samples: vSamples, avcC },
+                    audio: audioBuffer ? { sampleRate: sr, channels: 2, bitrate: 128000, samples: aSamples,
+                        asc: Uint8Array.from([(2 << 3) | (fIdx >> 1), ((fIdx & 1) << 7) | (2 << 3)]) } : null
+                });
+                setProgress(1, '');
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url; a.download = `ZRDraws_Animation_${Date.now()}.mp4`;
+                document.body.appendChild(a); a.click(); a.remove();
+                setTimeout(() => URL.revokeObjectURL(url), 30000);
+                return true;
+            } finally {
+                try { if (venc.state !== 'closed') venc.close(); } catch (_) {}
+                try { if (aenc && aenc.state !== 'closed') aenc.close(); } catch (_) {}
+            }
+        }
+
+        async function exportVideo() {
+            if (isExporting) return;
+            if (!(window.VideoEncoder && window.VideoFrame) && (!window.MediaRecorder || !mainCanvas.captureStream)) {
+                alert('Экспорт видео не поддерживается этим браузером. Попробуй Chrome или Edge.');
+                return;
+            }
+            if (isPlaying) stopAnimation();
+            commitPhoto();
+            saveCurrentFrameState();
+
+            const L = I18N[currentLang];
+            const overlay = document.getElementById('exportOverlay');
+            const bar = document.getElementById('exportBar');
+            const pctEl = document.getElementById('exportPercent');
+            const infoEl = document.getElementById('exportInfo');
+            const preview = document.getElementById('exportPreview');
+            const pctx = preview.getContext('2d');
+            const setProgress = (p, info) => {
+                const v = Math.max(0, Math.min(100, Math.round(p * 100)));
+                bar.style.width = v + '%';
+                pctEl.textContent = v + '%';
+                infoEl.textContent = info || '';
+            };
+
+            isExporting = true;
+            let cancelled = false, recorder = null, timer = null, audioSource = null, audioDest = null, stream = null, wakeLock = null;
+            const stopAudioSource = () => { if (audioSource) { try { audioSource.stop(); } catch (_) {} audioSource = null; } };
+            exportAbort = () => {
+                cancelled = true;
+                if (timer) { clearInterval(timer); timer = null; }
+                stopAudioSource();
+                if (recorder && recorder.state !== 'inactive') { try { recorder.stop(); } catch (_) {} }
+            };
+            setProgress(0, L.ExportPrep);
+            overlay.classList.remove('hidden');
+
+            try {
+                try { if (navigator.wakeLock) wakeLock = await navigator.wakeLock.request('screen'); } catch (_) {}
+                if (audioBuffer && getAudioContext().state === 'suspended') await getAudioContext().resume();
+
+                // Decode every frame first so playback into the recorder is perfectly timed.
+                const imgs = await Promise.all(frames.map(src => new Promise(res => {
+                    const im = new Image();
+                    im.onload = () => res(im);
+                    im.onerror = () => res(null);
+                    im.src = src;
+                })));
+                if (cancelled) throw 'cancel';
+
+                const W = mainCanvas.width, H = mainCanvas.height;
+                const off = document.createElement('canvas');
+                off.width = W; off.height = H;
+                const octx = off.getContext('2d');
+                const bg = `rgb(${bgColor.r}, ${bgColor.g}, ${bgColor.b})`;
+                const drawFrame = (i) => {
+                    octx.globalCompositeOperation = 'source-over';
+                    octx.fillStyle = bg;
+                    octx.fillRect(0, 0, W, H);
+                    drawLayersTo(octx, i);
+                    if (imgs[i]) octx.drawImage(imgs[i], 0, 0);
+                    pctx.drawImage(off, 0, 0, preview.width, preview.height);
+                };
+                drawFrame(0);
+
+                // Preferred path: WebCodecs -> real MP4 with exact frame timing. Falls back to MediaRecorder below.
+                try {
+                    const wcTotal = audioBuffer
+                        ? Math.max(frames.length, Math.ceil(((audioSettings.offset || 0) + audioEffLen()) * fps))
+                        : frames.length * Math.max(1, Math.ceil(3000 / (frames.length * (1000 / fps))));
+                    const saved = await exportWithWebCodecs({
+                        W, H, off, drawFrame, total: wcTotal, setProgress, L,
+                        idxAt: (k) => audioBuffer ? Math.min(k, frames.length - 1) : (k % frames.length),
+                        isCancelled: () => cancelled
+                    });
+                    if (saved) return;
+                } catch (wcErr) {
+                    if (wcErr === 'cancel' || cancelled) throw 'cancel';
+                    console.warn('WebCodecs export failed, using MediaRecorder', wcErr);
+                    setProgress(0, L.ExportPrep);
+                }
+                if (!window.MediaRecorder || !mainCanvas.captureStream) throw new Error('no recorder');
+
+                // Push every video frame by hand (requestFrame) so all frames get exactly 1/fps seconds.
+                const manualFrames = !!(window.CanvasCaptureMediaStreamTrack &&
+                    CanvasCaptureMediaStreamTrack.prototype.requestFrame);
+                stream = off.captureStream(manualFrames ? 0 : fps);
+                if (audioBuffer) {
+                    audioDest = getAudioContext().createMediaStreamDestination();
+                    audioDest.stream.getAudioTracks().forEach(t => stream.addTrack(t));
+                }
+                // MP4 (H.264 + AAC) first: WhatsApp / Telegram / gallery apps do not take WebM.
+                const mime = (audioBuffer
+                    ? ['video/mp4;codecs=avc1.42E01E,mp4a.40.2','video/mp4;codecs=avc1.640028,mp4a.40.2','video/mp4;codecs=avc1,mp4a.40.2']
+                    : ['video/mp4;codecs=avc1.42E01E','video/mp4;codecs=avc1.640028','video/mp4;codecs=avc1'])
+                    .concat(['video/webm;codecs=vp9,opus','video/webm;codecs=vp8,opus','video/webm'])
+                    .find(type => MediaRecorder.isTypeSupported(type));
+                const isMp4 = !!mime && mime.indexOf('video/mp4') === 0;
+                recorder = new MediaRecorder(stream, Object.assign({ videoBitsPerSecond: 8000000 }, mime ? { mimeType: mime } : {}));
+                const chunks = [];
+                recorder.ondataavailable = e => { if (e.data && e.data.size) chunks.push(e.data); };
+                const finished = new Promise((resolve, reject) => {
+                    recorder.onerror = () => reject(new Error('Export failed'));
+                    recorder.onstop = () => resolve();
+                });
+
+                const frameMs = 1000 / fps;
+                // Short animations are repeated so the video lasts at least ~3 s (a 4-frame clip at 12 fps is only 0.3 s).
+                // With an audio track the last frame is held while the sound plays, as before.
+                let totalFrames, loopFrames;
+                if (audioBuffer) {
+                    totalFrames = Math.max(frames.length, Math.ceil(((audioSettings.offset || 0) + audioEffLen()) * fps));
+                    loopFrames = false;
+                } else {
+                    totalFrames = frames.length * Math.max(1, Math.ceil(3000 / (frames.length * frameMs)));
+                    loopFrames = true;
+                }
+                const frameIndexAt = (k) => loopFrames ? (k % frames.length) : Math.min(k, frames.length - 1);
+                const totalMs = totalFrames * frameMs;
+                const vtrack = stream.getVideoTracks()[0];
+                const push = () => { if (manualFrames && vtrack && vtrack.requestFrame) vtrack.requestFrame(); };
+                recorder.start(200);
+                if (audioDest) { const clipRun = startClipAudio(getAudioContext(), audioDest, 0); audioSource = clipRun ? clipRun.src : null; }
+                const t0 = performance.now();
+                let n = 0, finishing = false;
+                timer = setInterval(() => {
+                    if (cancelled || finishing) return;
+                    const el = performance.now() - t0;
+                    let emitted = 0;
+                    while (n < totalFrames && el >= n * frameMs && emitted < 3) {
+                        drawFrame(frameIndexAt(n));
+                        push();
+                        n++; emitted++;
+                    }
+                    const shown = frameIndexAt(Math.max(n - 1, 0)) + 1;
+                    const left = Math.max(0, (totalMs - el) / 1000);
+                    setProgress(Math.min(1, el / totalMs), `${L.ExportLeft}: ${Math.ceil(left)} ${L.ExportSec} · ${L.ExportFrame} ${shown}/${frames.length}`);
+                    if (n >= totalFrames && el >= totalMs) {
+                        finishing = true;
+                        clearInterval(timer); timer = null;
+                        drawFrame(frameIndexAt(totalFrames - 1));
+                        push();   // gives the last frame its full duration
+                        setTimeout(() => {
+                            stopAudioSource();
+                            if (recorder.state !== 'inactive') recorder.stop();
+                        }, 150);
+                    }
+                }, 8);
+
+                await finished;
+                if (cancelled) throw 'cancel';
+
+                setProgress(1, '');
+                const blob = new Blob(chunks, { type: isMp4 ? 'video/mp4' : (recorder.mimeType || 'video/webm') });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url; a.download = `ZRDraws_Animation_${Date.now()}.${isMp4 ? 'mp4' : 'webm'}`;
+                document.body.appendChild(a); a.click(); a.remove();
+                setTimeout(() => URL.revokeObjectURL(url), 30000);
+                if (!isMp4) setTimeout(() => alert('Этот браузер умеет сохранять только WebM, а WhatsApp его не принимает. Обнови Chrome до свежей версии — тогда видео будет сохраняться как MP4.'), 400);
+            } catch (err) {
+                if (err !== 'cancel') alert('Не удалось экспортировать видео. Попробуй другой браузер или уменьши FPS.');
+            } finally {
+                if (timer) clearInterval(timer);
+                stopAudioSource();
+                if (stream) stream.getTracks().forEach(t => { try { t.stop(); } catch (_) {} });
+                if (wakeLock) { try { wakeLock.release(); } catch (_) {} }
+                exportAbort = null;
+                isExporting = false;
+                overlay.classList.add('hidden');
+            }
+        }
+
+        // EVENT LISTENERS & MULTI-SELECT HANDLERS
+        function setupEventListeners() {
+            document.getElementById('langSelect').addEventListener('change', (e) => {
+                currentLang = e.target.value;
+                updateLanguageUI();
+            });
+
+            const fpsInput = document.getElementById('fpsInput');
+            fpsInput.addEventListener('change', () => {
+                let val = parseInt(fpsInput.value) || 12;
+                if (val > 120) val = 120;
+                if (val < 1) val = 1;
+                fpsInput.value = val;
+                fps = val;
+                renderAudioLane();
+                syncImgModal(false);
+            });
+
+            document.getElementById('btnPlay').onclick = () => {
+                if (isPlaying) stopAnimation();
+                else startAnimation();
+            };
+
+            document.getElementById('btnOnion').onclick = () => {
+                onionSkinActive = !onionSkinActive;
+                document.getElementById('onionStatus').className = `w-2.5 h-2.5 rounded-full ${onionSkinActive ? 'bg-emerald-400 shadow-[0_0_8px_#34d399]' : 'bg-rose-500'}`;
+                drawOnionSkin();
+            };
+
+            document.getElementById('toolBrush').onclick = () => setTool('brush');
+            document.getElementById('toolEraser').onclick = () => setTool('eraser');
+            document.getElementById('toolFill').onclick = () => setTool('fill');
+            document.getElementById('toolFillErase').onclick = () => setTool('fillerase');
+            document.getElementById('toolClear').onclick = () => {
+                if (isExporting || frameLoading) return;
+                ctx.globalCompositeOperation = 'source-over';
+                fillCanvasBackground();
+                saveCurrentFrameState();
+                updateThumb(currentFrameIdx);
+                recordHistory();
+            };
+            document.getElementById('btnUndo').onclick = undo;
+            document.getElementById('btnRedo').onclick = redo;
+            document.addEventListener('keydown', (e) => {
+                if (!(e.ctrlKey || e.metaKey)) return;
+                const k = e.key.toLowerCase();
+                if (k === 'z' && !e.shiftKey) { e.preventDefault(); undo(); }
+                else if (k === 'y' || (k === 'z' && e.shiftKey)) { e.preventDefault(); redo(); }
+            });
+
+            // Canvas drawing
+            mainCanvas.addEventListener('pointerdown', startDraw);
+            mainCanvas.addEventListener('pointermove', draw);
+            mainCanvas.addEventListener('pointerup', stopDraw);
+            mainCanvas.addEventListener('pointercancel', stopDraw);
+            mainCanvas.addEventListener('lostpointercapture', stopDraw);
+
+            // Photo layer: drag / pinch
+            setupPhotoCanvasEvents();
+
+            // Color Modals
+            document.getElementById('btnBrushColor').onclick = () => {
+                activeColorTarget = 'brush';
+                openRgbModal(brushColor);
+            };
+            document.getElementById('btnBgColor').onclick = () => {
+                activeColorTarget = 'bg';
+                openRgbModal(bgColor);
+            };
+
+            document.getElementById('nativeColorPicker').addEventListener('input', (e) => {
+                const hex = e.target.value;
+                const rgb = hex.match(/[a-f0-9]{2}/gi).map(v => parseInt(v, 16));
+                ['sliderR','sliderG','sliderB'].forEach((id,i) => document.getElementById(id).value = rgb[i]);
+                updateRgbPreview();
+            });
+            document.getElementById('hexColorInput').addEventListener('change', (e) => {
+                let hex = e.target.value.trim();
+                if (!/^#[0-9a-fA-F]{6}$/.test(hex)) { e.target.value = document.getElementById('nativeColorPicker').value; return; }
+                document.getElementById('nativeColorPicker').value = hex;
+                const rgb = hex.slice(1).match(/.{2}/g).map(v => parseInt(v,16));
+                ['sliderR','sliderG','sliderB'].forEach((id,i) => document.getElementById(id).value = rgb[i]);
+                updateRgbPreview();
+            });
+            ['sliderR', 'sliderG', 'sliderB'].forEach(id => {
+                document.getElementById(id).addEventListener('input', updateRgbPreview);
+            });
+
+            document.getElementById('applyRgbBtn').onclick = () => {
+                const r = parseInt(document.getElementById('sliderR').value);
+                const g = parseInt(document.getElementById('sliderG').value);
+                const b = parseInt(document.getElementById('sliderB').value);
+
+                if (activeColorTarget === 'brush') {
+                    brushColor = { r, g, b };
+                    document.getElementById('btnBrushColor').style.backgroundColor = `rgb(${r},${g},${b})`;
+                } else {
+                    bgColor = { r, g, b };
+                    applyBgToUI();
+                }
+                document.getElementById('rgbModal').classList.add('hidden');
+            };
+
+            document.getElementById('closeRgbModal').onclick = () => {
+                document.getElementById('rgbModal').classList.add('hidden');
+            };
+            document.getElementById('rgbModal').addEventListener('click', (e) => {
+                if (e.target.id === 'rgbModal') document.getElementById('rgbModal').classList.add('hidden');
+            });
+
+            document.getElementById('btnSizePicker').onclick = () => {
+                document.getElementById('sizeSliderPanel').classList.toggle('hidden');
+            };
+
+            document.getElementById('inputToolSize').oninput = (e) => {
+                brushSize = Number(e.target.value);
+                document.getElementById('brushSizeVal').innerText = `${brushSize}px`;
+                document.getElementById('sliderSizeVal').innerText = `${brushSize} px`;
+            };
+
+            // Add Frame logic & Long Press
+            const btnAddFrame = document.getElementById('btnAddFrame');
+            const addMenu = document.getElementById('addFrameMenu');
+            let addPressTimer = null, menuJustOpened = false;
+
+            btnAddFrame.addEventListener('pointerdown', () => {
+                menuJustOpened = false;
+                clearTimeout(addPressTimer);
+                addPressTimer = setTimeout(() => {
+                    addMenu.classList.remove('hidden');
+                    menuJustOpened = true;
+                }, 450);
+            });
+            ['pointerup', 'pointerleave', 'pointercancel'].forEach(ev =>
+                btnAddFrame.addEventListener(ev, () => clearTimeout(addPressTimer)));
+            btnAddFrame.addEventListener('contextmenu', (e) => e.preventDefault());
+            btnAddFrame.onclick = () => {
+                if (menuJustOpened) { menuJustOpened = false; return; }
+                if (!addMenu.classList.contains('hidden')) { addMenu.classList.add('hidden'); return; }
+                createNewFrame();
+            };
+            document.addEventListener('pointerdown', (e) => {
+                if (!addMenu.contains(e.target) && !btnAddFrame.contains(e.target)) addMenu.classList.add('hidden');
+            });
+
+            document.getElementById('btnCopyLastFrame').onclick = () => {
+                document.getElementById('addFrameMenu').classList.add('hidden');
+                createNewFrame(frames.length - 1);
+            };
+
+            // Single Frame Option Modal Actions
+            document.getElementById('btnCopyAhead').onclick = () => {
+                if (targetFrameIdx !== null) {
+                    createNewFrame(targetFrameIdx);
+                    closeFrameModal();
+                }
+            };
+
+            document.getElementById('btnCopyToEnd').onclick = () => {
+                if (targetFrameIdx !== null) {
+                    saveCurrentFrameState();
+                    frames.push(frames[targetFrameIdx]);
+                    frameLayers.push(cloneList(frameLayers[targetFrameIdx]));
+                    currentFrameIdx = frames.length - 1;
+                    loadFrameState(currentFrameIdx);
+                    recordHistory();
+                    closeFrameModal();
+                }
+            };
+
+            document.getElementById('btnDeleteSingleFrame').onclick = () => {
+                if (targetFrameIdx !== null && frames.length > 1) {
+                    commitPhoto();
+                    frames.splice(targetFrameIdx, 1);
+                    frameLayers.splice(targetFrameIdx, 1);
+                    currentFrameIdx = Math.max(0, targetFrameIdx - 1);
+                    loadFrameState(currentFrameIdx);
+                    recordHistory();
+                    closeFrameModal();
+                }
+            };
+
+            document.getElementById('closeFrameModal').onclick = closeFrameModal;
+
+            // MULTI-SELECT TOGGLE & ACTIONS
+            document.getElementById('btnToggleMultiSelect').onclick = () => {
+                isMultiSelectActive = !isMultiSelectActive;
+                selectedFrameIndices.clear();
+                document.getElementById('multiSelectBar').classList.toggle('hidden', !isMultiSelectActive);
+                renderTimeline();
+            };
+
+            document.getElementById('btnCopyMulti').onclick = () => {
+                if (selectedFrameIndices.size === 0) return;
+                saveCurrentFrameState();
+                const sorted = Array.from(selectedFrameIndices).sort((a,b) => a - b);
+                sorted.forEach(idx => {
+                    frames.push(frames[idx]);
+                    frameLayers.push(cloneList(frameLayers[idx]));
+                });
+                currentFrameIdx = frames.length - 1;
+                loadFrameState(currentFrameIdx);
+                recordHistory();
+            };
+
+            document.getElementById('btnDeleteMulti').onclick = () => {
+                if (selectedFrameIndices.size === 0) return;
+                if (selectedFrameIndices.size >= frames.length) {
+                    return;
+                }
+                const sorted = Array.from(selectedFrameIndices).sort((a,b) => b - a);
+                sorted.forEach(idx => {
+                    frames.splice(idx, 1);
+                    frameLayers.splice(idx, 1);
+                });
+                selectedFrameIndices.clear();
+                currentFrameIdx = 0;
+                loadFrameState(0);
+                updateMultiSelectBar();
+                recordHistory();
+            };
+
+            // Image import / Export
+            document.getElementById('imageInput').onchange = (e) => { handleImageImport(e); e.target.value = ''; };
+            document.getElementById('audioInput').onchange = (e) => { handleAudioImport(e); e.target.value = ''; };
+            document.getElementById('audioCaptureInput').onchange = (e) => { handleAudioImport(e); e.target.value = ''; };
+            document.getElementById('btnExport').onclick = exportVideo;
+            setupImgModal();
+            setupAudioLane();
+            document.getElementById('btnTheme').onclick = () => {
+                const next = document.documentElement.getAttribute('data-theme') === 'liquid' ? 'classic' : 'liquid';
+                document.documentElement.setAttribute('data-theme', next);
+                try { localStorage.setItem('zrTheme', next); } catch (_) {}
+            };
+            document.getElementById('btnStopExport').onclick = () => { if (exportAbort) exportAbort(); };
+
+            setupMicrophoneRecording();
+        }
+
+        let chipTap = { aid: null, t: 0 };
+        function renderAssetsShelf() {
+            const photos = document.getElementById('photoAssets');
+            const sounds = document.getElementById('soundAssets');
+            if (!photos || !sounds) return;
+            photos.innerHTML = '';
+            if (!photoAssets.length) photos.innerHTML = '<span class="text-[10px] text-slate-500">Фото не загружены</span>';
+            photoAssets.forEach((asset, index) => {
+                const chip = document.createElement('div'); chip.className = 'asset-chip'; chip.style.cursor = 'pointer';
+                chip.title = 'Тап — на этот кадр · двойной тап — кадры, размер, поворот, удалить';
+                const thumb = document.createElement('img'); thumb.src = asset.url;
+                thumb.style.cssText = 'width:22px;height:22px;object-fit:cover;border-radius:6px;flex-shrink:0';
+                const name = document.createElement('span'); name.textContent = asset.name;
+                const remove = document.createElement('button'); remove.type = 'button'; remove.innerHTML = '<i class="fas fa-times"></i>';
+                remove.title = 'Убрать из списка';
+                remove.onclick = (ev) => { ev.stopPropagation(); photoAssets.splice(index, 1); renderAssetsShelf(); };
+                chip.onclick = () => {
+                    const now = performance.now();
+                    if (chipTap.aid === asset.id && now - chipTap.t < 420) { chipTap = { aid: null, t: 0 }; openImgModal(asset.id); }
+                    else { chipTap = { aid: asset.id, t: now }; addLayer(asset); }
+                };
+                chip.append(thumb, name, remove); photos.appendChild(chip);
+            });
+            sounds.innerHTML = '';
+            if (!audioBuffer) sounds.innerHTML = '<span class="text-[10px] text-slate-500">Звуки не загружены</span>';
+            else {
+                const chip = document.createElement('div'); chip.className = 'asset-chip'; chip.style.cursor = 'pointer';
+                const icon = document.createElement('i'); icon.className = 'fas fa-music text-indigo-300';
+                const name = document.createElement('span'); name.textContent = `${soundAssetName || 'Аудио'} · ${audioEffLen().toFixed(1)} с · ${Math.round(audioSettings.vol * 100)}%`;
+                const remove = document.createElement('button'); remove.type = 'button'; remove.innerHTML = '<i class="fas fa-times"></i>';
+                remove.title = 'Удалить звук';
+                remove.onclick = (ev) => { ev.stopPropagation(); removeAudio(); };
+                chip.onclick = () => { audSelected = true; updateAudioControls(); renderAudioLane(); byId('audioScroll').scrollLeft = Math.max(0, (audioSettings.offset || 0) * pxPerSec() - 20); };
+                chip.append(icon, name, remove); sounds.appendChild(chip);
+            }
+        }
+
+        function updateMultiSelectBar() {
+            document.getElementById('lblSelectedCount').innerText = selectedFrameIndices.size;
+        }
+
+        function setTool(tool) {
+            currentTool = tool;
+            document.querySelectorAll('.tool-btn').forEach(btn => {
+                btn.classList.remove('glossy-gradient-primary', 'text-white');
+                if (!btn.classList.contains('glass-btn')) btn.classList.add('glass-btn');
+                btn.classList.add('text-slate-400');
+            });
+            const ids = { brush: 'toolBrush', eraser: 'toolEraser', fill: 'toolFill', fillerase: 'toolFillErase' };
+            const active = document.getElementById(ids[tool] || 'toolBrush');
+            active.classList.remove('glass-btn', 'text-slate-400');
+            active.classList.add('glossy-gradient-primary', 'text-white');
+        }
+
+        function openRgbModal(col) {
+            document.getElementById('sliderR').value = col.r;
+            document.getElementById('sliderG').value = col.g;
+            document.getElementById('sliderB').value = col.b;
+            updateRgbPreview();
+            document.getElementById('rgbModal').classList.remove('hidden');
+        }
+
+        function updateRgbPreview() {
+            const r = document.getElementById('sliderR').value;
+            const g = document.getElementById('sliderG').value;
+            const b = document.getElementById('sliderB').value;
+
+            document.getElementById('valR').innerText = r;
+            document.getElementById('valG').innerText = g;
+            document.getElementById('valB').innerText = b;
+
+            const hex = '#' + [r,g,b].map(v => Number(v).toString(16).padStart(2,'0')).join('');
+            document.getElementById('rgbPreview').style.backgroundColor = `rgb(${r},${g},${b})`;
+            if (activeColorTarget === 'brush') {
+                brushColor = { r: Number(r), g: Number(g), b: Number(b) };
+                document.getElementById('btnBrushColor').style.backgroundColor = `rgb(${r},${g},${b})`;
+            } else {
+                bgColor = { r: Number(r), g: Number(g), b: Number(b) };
+                applyBgToUI();
+            }
+            document.getElementById('nativeColorPicker').value = hex;
+            document.getElementById('hexColorInput').value = hex.toUpperCase();
+        }
+
+        function openFrameOptionsModal() {
+            document.getElementById('frameOptionModal').classList.remove('hidden');
+        }
+
+        function closeFrameModal() {
+            document.getElementById('frameOptionModal').classList.add('hidden');
+        }
+
+        function updateLanguageUI() {
+            const lang = I18N[currentLang];
+            document.getElementById('lblOnion').innerText = lang.Onion;
+            document.getElementById('lblExport').innerText = lang.Export;
+            document.getElementById('lblAdd').innerText = lang.NewFrame;
+            document.getElementById('lblCopyLast').innerText = lang.CopyLast;
+            document.getElementById('lblLoadAudio').innerText = lang.AudioFile;
+            document.getElementById('lblRecord').innerText = lang.Record;
+            document.getElementById('lblNoAudio').innerText = lang.NoAudio;
+            document.getElementById('lblFrameOptsTitle').innerText = lang.FrameOpts;
+            document.getElementById('lblCopyAhead').innerText = lang.CopyAhead;
+            document.getElementById('lblCopyToEnd').innerText = lang.CopyToEnd;
+            document.getElementById('lblDeleteFrame').innerText = lang.DeleteFrame;
+            document.getElementById('lblToolSize').innerText = lang.ToolSize;
+            document.getElementById('rgbTitle').innerText = lang.SelectRGB;
+            document.getElementById('lblMultiSelectBtn').innerText = lang.MultiSelectBtn;
+            document.getElementById('lblFramesSelected').innerText = lang.SelectedCount;
+            document.getElementById('lblCopyMulti').innerText = lang.CopyMulti;
+            document.getElementById('lblDeleteMulti').innerText = lang.DeleteMulti;
+            document.getElementById('lblExportTitle').innerText = lang.ExportTitle;
+            document.getElementById('lblStopExport').innerText = lang.StopExport;
+            const setT = (id, k) => { const el = document.getElementById(id); if (el && lang[k]) el.innerText = lang[k]; };
+            setT('lblAudTitle','AudTitle'); setT('lblAudStart','AudStart'); setT('lblAudLen','AudLength');
+            setT('lblAudVol','AudVolume'); setT('lblAudReset','AudReset'); setT('lblAudDone','AudDone');
+            setT('lblAudPreview', previewSrc ? 'AudStopPrev' : 'AudPreview');
+            document.getElementById('btnTheme').title = lang.ThemeTip;
+            setT('lblImgFrames', 'ImgFrames'); setT('lblImgSize', 'ImgSize'); setT('lblImgRot', 'ImgRot'); setT('lblImgHint', 'ImgHint');
+            setT('lblImgRemoveHere', 'ImgRemoveHere'); setT('lblImgDeleteAll', 'ImgDeleteAll');
+            setT('lblAbVol', 'AudVolume'); setT('lblAbFade', 'AudFade'); setT('lblAbDel', 'AudDelete'); setT('lblAbDone', 'AudDone');
+            setT('lblFadeIn', 'AudFadeIn'); setT('lblFadeOut', 'AudFadeOut');
+            syncImgModal(true);
+        }
+    </script>
+</body>
+</html>
